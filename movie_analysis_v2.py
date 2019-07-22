@@ -5,49 +5,21 @@ from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 
-files = glob.glob('/home/clionaodoherty/Desktop/Association_Movies/labels/*.pickle')
-movies = []
-for file in files:
-    file_Name = file
-    fileObject = open(file_Name, 'rb')
-    file_labels = pickle.load(fileObject) 
-    movies.append(file_labels)
 
-for movie in movies:
-    del movie['compmsg']
-    del movie['deltat']
-    del movie['vid']
+def create_baskets(dict1):
 
-print(len(movies[0].values()))
-#Movies is now a list of dicts.
-
-def create_baskets(dict):
-    basket = {}
-    for i in dict.values():
-        for time in i:
-            if not time['Timestamp'] in basket:
-                basket[time['Timestamp']] = []
+    # Might be faster with list comprehension syntax like this uniquetimestamps=unique([x['Timestamp'] for x in dict1['alllabels']])
+    uniquetimestamps = set([x['Timestamp'] for x in dict1['alllabels']])
+    basket = { i: [] for i in uniquetimestamps}
     return basket
 
 def fill_baskets(dict1, dict2):
     #dict1 is the empty baskets for each movie (from create_baskets)
     #dict2 is the same as create_baskets arg, each movie's labels.
-    for x in dict1:
-        for i in dict2.values():
-            for time in i:
-                if time['Timestamp'] == x:
-                    dict1[time['Timestamp']] += time['Label'].values()
-    
-    for x in dict1.values():
-        del x[1::2]
-        del x[1::2]
+    for vals in dict2['alllabels']:
+        dict1[vals['Timestamp']].extend([vals['Label']['Name']])
     
     return dict1
-
-itemsets = []
-for movie in movies:
-    baskets = fill_baskets(create_baskets(movies[0]), movies[0])
-    item_dicts.extend(baskets.values())
 
 def pool_baskets(dict):
     inlist = list(dict.values())
@@ -81,16 +53,36 @@ def pool_baskets(dict):
         final_list.append(outlist2)
     return final_list
 
-itemsets.extend(pool_baskets(amelie_baskets))
+if __name__ == "__main__":
+        
+    files = glob.glob('/home/CUSACKLAB/clionaodoherty/associations/*.pickle')
+    movies = []
+    for file in files:
+        file_Name = file
+        fileObject = open(file_Name, 'rb')
+        file_labels = pickle.load(fileObject) 
+        movies.append(file_labels)
 
-#compute apriori and association rules
-te = TransactionEncoder()
-te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
-df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
+    for movie in movies:
+        del movie['compmsg']
+        del movie['deltat']
+        del movie['vid']
 
-frequent_itemsets = apriori(df, min_support=0.01, use_colnames=True, verbose=1)
-frequent_itemsets.to_csv(r'/home/clionaodoherty/Desktop/Association_Movies/amelie_apriori_results.csv', sep=',', index=False)
+    itemsets = []
+    for movie in movies:
+        baskets = fill_baskets(create_baskets(movie), movie)
+        itemsets.extend(baskets.values())
 
-rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
-rules = rules[rules.confidence != 1]
-rules.to_csv(r'/home/clionaodoherty/Desktop/Association_Movies/amelie_association_rules.csv', sep=',', index=False)
+#    itemsets.extend(pool_baskets(amelie_baskets))
+
+    #compute apriori and association rules
+    te = TransactionEncoder()
+    te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
+    df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
+
+    frequent_itemsets = apriori(df, min_support=0.01, use_colnames=True, verbose=1, max_len=2)
+    frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/apriori_itemsets.csv', sep=',', index=False)
+
+    rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
+    rules = rules[rules.confidence != 1]
+    rules.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/association_rules.csv', sep=',', index=False)
