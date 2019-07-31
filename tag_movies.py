@@ -300,13 +300,13 @@ def annotate_movie(bucket,prefix):
 
 if __name__=='__main__':
     bucket="movie-associations"
-    prefix="peppa"
+    prefix="AssociationMoviesTranscoded"
 
 # This sends to movies to rekognition
-#send_movies_to_rekognition_labels(bucket, prefix)
+send_movies_to_rekognition_labels(bucket, prefix)
 
 # When they're done, process the responses
-process_sqs_responses(bucket,'AmazonRekognition-movie-association-sqs',doevenifdone=False)
+#process_sqs_responses(bucket,'AmazonRekognition-movie-association-sqs',doevenifdone=False)
 
 #don't need to do process_rekognition_video because process_sqs_responses does this
 

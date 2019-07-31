@@ -1,0 +1,146 @@
+support,itemsets
+0.11222296767150704,frozenset({'Accessories'})
+0.11222296767150704,frozenset({'Accessory'})
+0.5562024539179677,frozenset({'Apparel'})
+0.15248860031157252,frozenset({'Bar Counter'})
+0.10592328947817287,frozenset({'Building'})
+0.5562024539179677,frozenset({'Clothing'})
+0.19424386804789576,frozenset({'Coat'})
+0.11431527956243391,frozenset({'Crowd'})
+0.13275946373136535,frozenset({'Dating'})
+0.5264666082941972,frozenset({'Face'})
+0.34694852230472706,frozenset({'Female'})
+0.10283030668288966,frozenset({'Food'})
+0.2239455998908359,frozenset({'Furniture'})
+0.1374785367462276,frozenset({'Girl'})
+0.19052546593738984,frozenset({'Hair'})
+0.17104649708327174,frozenset({'Head'})
+0.9271443354066932,frozenset({'Human'})
+0.3558977041425501,frozenset({'Indoors'})
+0.16312072867035854,frozenset({'Man'})
+0.12349188660579252,frozenset({'Overcoat'})
+0.16353009404032248,frozenset({'People'})
+0.9271443354066932,frozenset({'Person'})
+0.24213961633367825,frozenset({'Photo'})
+0.24213961633367825,frozenset({'Photography'})
+0.1544785708600084,frozenset({'Plant'})
+0.18592010552529536,frozenset({'Portrait'})
+0.16438293856108072,frozenset({'Pub'})
+0.2616981840097338,frozenset({'Room'})
+0.19457363459592228,frozenset({'Woman'})
+0.11222296767150704,"frozenset({'Accessories', 'Accessory'})"
+0.11206377002763217,"frozenset({'Accessories', 'Human'})"
+0.11206377002763217,"frozenset({'Person', 'Accessories'})"
+0.11206377002763217,"frozenset({'Accessory', 'Human'})"
+0.11206377002763217,"frozenset({'Person', 'Accessory'})"
+0.5562024539179677,"frozenset({'Clothing', 'Apparel'})"
+0.19424386804789576,"frozenset({'Apparel', 'Coat'})"
+0.3390796101931977,"frozenset({'Face', 'Apparel'})"
+0.2537155592954367,"frozenset({'Apparel', 'Female'})"
+0.13260026608749048,"frozenset({'Apparel', 'Furniture'})"
+0.12844975608646705,"frozenset({'Hair', 'Apparel'})"
+0.54779909257343,"frozenset({'Human', 'Apparel'})"
+0.23373625498914044,"frozenset({'Indoors', 'Apparel'})"
+0.12217282041368645,"frozenset({'Man', 'Apparel'})"
+0.12349188660579252,"frozenset({'Overcoat', 'Apparel'})"
+0.1148497287954424,"frozenset({'Apparel', 'People'})"
+0.54779909257343,"frozenset({'Person', 'Apparel'})"
+0.15335281609260754,"frozenset({'Photo', 'Apparel'})"
+0.15335281609260754,"frozenset({'Photography', 'Apparel'})"
+0.10558215166986958,"frozenset({'Plant', 'Apparel'})"
+0.11207514128790894,"frozenset({'Portrait', 'Apparel'})"
+0.18211073333257524,"frozenset({'Room', 'Apparel'})"
+0.14986183918763715,"frozenset({'Woman', 'Apparel'})"
+0.15147655814693942,"frozenset({'Human', 'Bar Counter'})"
+0.15147655814693942,"frozenset({'Person', 'Bar Counter'})"
+0.15248860031157252,"frozenset({'Pub', 'Bar Counter'})"
+0.19424386804789576,"frozenset({'Clothing', 'Coat'})"
+0.3390796101931977,"frozenset({'Clothing', 'Face'})"
+0.2537155592954367,"frozenset({'Clothing', 'Female'})"
+0.13260026608749048,"frozenset({'Clothing', 'Furniture'})"
+0.12844975608646705,"frozenset({'Clothing', 'Hair'})"
+0.54779909257343,"frozenset({'Clothing', 'Human'})"
+0.23373625498914044,"frozenset({'Clothing', 'Indoors'})"
+0.12217282041368645,"frozenset({'Clothing', 'Man'})"
+0.12349188660579252,"frozenset({'Clothing', 'Overcoat'})"
+0.1148497287954424,"frozenset({'Clothing', 'People'})"
+0.54779909257343,"frozenset({'Clothing', 'Person'})"
+0.15335281609260754,"frozenset({'Clothing', 'Photo'})"
+0.15335281609260754,"frozenset({'Clothing', 'Photography'})"
+0.10558215166986958,"frozenset({'Clothing', 'Plant'})"
+0.11207514128790894,"frozenset({'Clothing', 'Portrait'})"
+0.18211073333257524,"frozenset({'Clothing', 'Room'})"
+0.14986183918763715,"frozenset({'Clothing', 'Woman'})"
+0.11530457920651346,"frozenset({'Face', 'Coat'})"
+0.19360707747239628,"frozenset({'Human', 'Coat'})"
+0.12349188660579252,"frozenset({'Overcoat', 'Coat'})"
+0.19360707747239628,"frozenset({'Person', 'Coat'})"
+0.1134510637813989,"frozenset({'Human', 'Crowd'})"
+0.1134510637813989,"frozenset({'Person', 'Crowd'})"
+0.13266849364915115,"frozenset({'Dating', 'Human'})"
+0.13266849364915115,"frozenset({'Dating', 'Person'})"
+0.28004002683617424,"frozenset({'Face', 'Female'})"
+0.12321897635914988,"frozenset({'Girl', 'Face'})"
+0.17108061086410206,"frozenset({'Hair', 'Face'})"
+0.16023242856005732,"frozenset({'Head', 'Face'})"
+0.5226686073617539,"frozenset({'Human', 'Face'})"
+0.20986797966818663,"frozenset({'Face', 'Indoors'})"
+0.1479059824200316,"frozenset({'Man', 'Face'})"
+0.10547981032737859,"frozenset({'Face', 'People'})"
+0.5226686073617539,"frozenset({'Person', 'Face'})"
+0.22960848750867058,"frozenset({'Photo', 'Face'})"
+0.22960848750867058,"frozenset({'Photography', 'Face'})"
+0.18592010552529536,"frozenset({'Face', 'Portrait'})"
+0.10428582799831705,"frozenset({'Pub', 'Face'})"
+0.15353475625703597,"frozenset({'Room', 'Face'})"
+0.16943177812396948,"frozenset({'Woman', 'Face'})"
+0.1374785367462276,"frozenset({'Girl', 'Female'})"
+0.11698752572747638,"frozenset({'Hair', 'Female'})"
+0.34529968956459445,"frozenset({'Human', 'Female'})"
+0.13679626112962098,"frozenset({'Indoors', 'Female'})"
+0.34529968956459445,"frozenset({'Person', 'Female'})"
+0.13146314005981283,"frozenset({'Photo', 'Female'})"
+0.13146314005981283,"frozenset({'Photography', 'Female'})"
+0.10516141503962884,"frozenset({'Portrait', 'Female'})"
+0.10605974460149419,"frozenset({'Room', 'Female'})"
+0.19457363459592228,"frozenset({'Woman', 'Female'})"
+0.2121536029838187,"frozenset({'Human', 'Furniture'})"
+0.15393275036672313,"frozenset({'Indoors', 'Furniture'})"
+0.2121536029838187,"frozenset({'Person', 'Furniture'})"
+0.13080360696375978,"frozenset({'Room', 'Furniture'})"
+0.13727385406124562,"frozenset({'Girl', 'Human'})"
+0.13727385406124562,"frozenset({'Girl', 'Person'})"
+0.11744237613854744,"frozenset({'Girl', 'Woman'})"
+0.19041175333462207,"frozenset({'Hair', 'Human'})"
+0.19041175333462207,"frozenset({'Person', 'Hair'})"
+0.1696137182883979,"frozenset({'Head', 'Human'})"
+0.1696137182883979,"frozenset({'Person', 'Head'})"
+0.10104501881943576,"frozenset({'Photo', 'Head'})"
+0.10104501881943576,"frozenset({'Photography', 'Head'})"
+0.3445378151260504,"frozenset({'Human', 'Indoors'})"
+0.16292741724565332,"frozenset({'Man', 'Human'})"
+0.12309389249610535,"frozenset({'Overcoat', 'Human'})"
+0.16353009404032248,"frozenset({'Human', 'People'})"
+0.9271443354066932,"frozenset({'Person', 'Human'})"
+0.24094563400461674,"frozenset({'Photo', 'Human'})"
+0.24094563400461674,"frozenset({'Photography', 'Human'})"
+0.13802435723951287,"frozenset({'Plant', 'Human'})"
+0.1854197700731172,"frozenset({'Human', 'Portrait'})"
+0.16258627943735005,"frozenset({'Pub', 'Human'})"
+0.25427275104899877,"frozenset({'Room', 'Human'})"
+0.19432346686983318,"frozenset({'Woman', 'Human'})"
+0.3445378151260504,"frozenset({'Person', 'Indoors'})"
+0.2616981840097338,"frozenset({'Room', 'Indoors'})"
+0.16292741724565332,"frozenset({'Person', 'Man'})"
+0.12309389249610535,"frozenset({'Overcoat', 'Person'})"
+0.16353009404032248,"frozenset({'Person', 'People'})"
+0.24094563400461674,"frozenset({'Person', 'Photo'})"
+0.24094563400461674,"frozenset({'Photography', 'Person'})"
+0.13802435723951287,"frozenset({'Person', 'Plant'})"
+0.1854197700731172,"frozenset({'Person', 'Portrait'})"
+0.16258627943735005,"frozenset({'Person', 'Pub'})"
+0.25427275104899877,"frozenset({'Person', 'Room'})"
+0.19432346686983318,"frozenset({'Person', 'Woman'})"
+0.24213961633367825,"frozenset({'Photography', 'Photo'})"
+0.18592010552529536,"frozenset({'Photo', 'Portrait'})"
+0.18592010552529536,"frozenset({'Photography', 'Portrait'})"
