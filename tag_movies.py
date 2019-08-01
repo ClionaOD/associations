@@ -34,7 +34,7 @@ def send_movies_to_rekognition_labels(bucket,prefix):
 
     for movie in allfiles['Contents']:
         filename=movie['Key']
-        if filename[-4:]=='.mp4':
+        if filename[-5:]=='.mpeg':
             print('Working on %s'%filename)
             response = rekognition.start_label_detection(
                 Video={'S3Object': {'Bucket': bucket, 'Name': filename}},
@@ -300,17 +300,17 @@ def annotate_movie(bucket,prefix):
 
 if __name__=='__main__':
     bucket="movie-associations"
-    prefix="peppa"
+    prefix="MoviesTranscoded"
 
-# This sends to movies to rekognition
-#send_movies_to_rekognition_labels(bucket, prefix)
+    # This sends to movies to rekognition
+    #send_movies_to_rekognition_labels(bucket, prefix)
 
-# When they're done, process the responses
-process_sqs_responses(bucket,'AmazonRekognition-movie-association-sqs',doevenifdone=False)
+    # When they're done, process the responses
+    process_sqs_responses(bucket,'AmazonRekognition-movie-association-sqs',doevenifdone=False)
 
-#don't need to do process_rekognition_video because process_sqs_responses does this
+    #don't need to do process_rekognition_video because process_sqs_responses does this
 
-# Downsample to TR
-#select_frames(bucket,'labels',2000)
+    # Downsample to TR
+    #select_frames(bucket,'labels',2000)
 
-#annotate_movie(bucket,'labels_ds')
+    #annotate_movie(bucket,'labels_ds')
