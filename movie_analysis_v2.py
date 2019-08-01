@@ -8,7 +8,6 @@ from mlxtend.frequent_patterns import association_rules
 
 def create_baskets(dict1):
 
-    # Might be faster with list comprehension syntax like this uniquetimestamps=unique([x['Timestamp'] for x in dict1['alllabels']])
     uniquetimestamps = set([x['Timestamp'] for x in dict1['alllabels']])
     basket = { i: [] for i in uniquetimestamps}
     return basket
@@ -71,19 +70,6 @@ if __name__ == "__main__":
         baskets = fill_baskets(create_baskets(movie), movie)
         itemsets.extend(baskets.values())
 
-    """
-    #compute apriori and association rules
-    te = TransactionEncoder()
-    te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
-    df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
-
-    frequent_itemsets = apriori(df, min_support=0.009, use_colnames=True, verbose=1, max_len=2)
-    frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/apriori_itemsets.csv', sep=',', index=False)
-
-    rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
-    rules = rules[rules.confidence != 1]
-    rules.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/association_rules.csv', sep=',', index=False)
-    """
     for pool in range(1,11,3):
         pooled_itemsets = pool_baskets(itemsets, pool)
         
@@ -92,8 +78,8 @@ if __name__ == "__main__":
         df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
 
         frequent_itemsets = apriori(df, min_support=0.1, use_colnames=True, verbose=1, max_len=2)
-        frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/apriori_itemsets_pooled_%.0f.csv' %pool, sep=',', index=False)
+        frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/frequent_itemsets_%.0f.csv' %pool, sep=',', index=False)
 
         rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
         rules = rules[rules.confidence != 1]
-        rules.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/association_rules_pooled_%.0f.csv' %pool, sep=',', index=False)
+        rules.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/association_rules_%.0f.csv' %pool, sep=',', index=False)
