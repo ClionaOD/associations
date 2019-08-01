@@ -52,7 +52,7 @@ def pool_baskets(inlist, multiply_frames=1):
 
 if __name__ == "__main__":
         
-    files = glob.glob('/home/CUSACKLAB/clionaodoherty/associations/*.pickle')
+    files = glob.glob('/home/CUSACKLAB/clionaodoherty/associations/data/*.pickle')
     movies = []
     for file in files:
         file_Name = file
