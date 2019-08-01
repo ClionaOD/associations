@@ -77,7 +77,7 @@ if __name__ == "__main__":
         te_ary = te.fit(itemsets).transform(pooled_itemsets, sparse=True)
         df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
 
-        frequent_itemsets = apriori(df, min_support=0.1, use_colnames=True, verbose=1, max_len=2)
+        frequent_itemsets = apriori(df, min_support=0.05, use_colnames=True, verbose=1, max_len=2)
         frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/frequent_itemsets_%.0f.csv' %pool, sep=',', index=False)
 
         rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
