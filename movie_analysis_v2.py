@@ -1,13 +1,13 @@
 import pickle
 import glob
 import pandas as pd
+import random
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 
 
 def create_baskets(dict1):
-
     uniquetimestamps = set([x['Timestamp'] for x in dict1['alllabels']])
     basket = { i: [] for i in uniquetimestamps}
     return basket
@@ -50,6 +50,18 @@ def pool_baskets(inlist, multiply_frames=1):
         final_list.append(outlist2)
     return final_list
 
+def shuffle_items(lst):
+    count = 0
+    while count < 1000000:
+        a = random.choice(lst)
+        b = random.choice(lst)
+        if not a == b:
+            rand_idx_a = random.randint(0, len(a)-1)
+            rand_idx_b = random.randint(0, len(b)-1)
+            if not a[rand_idx_a] in b:
+                a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
+                count += 1
+
 if __name__ == "__main__":
         
     files = glob.glob('/home/CUSACKLAB/clionaodoherty/associations/data/*.pickle')
@@ -70,16 +82,17 @@ if __name__ == "__main__":
         baskets = fill_baskets(create_baskets(movie), movie)
         itemsets.extend(baskets.values())
 
-    for pool in range(1,11,3):
-        pooled_itemsets = pool_baskets(itemsets, pool)
-        
-        te = TransactionEncoder()
-        te_ary = te.fit(itemsets).transform(pooled_itemsets, sparse=True)
-        df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
+#for pool in range(1,11,3):
+    pooled_itemsets = pool_baskets(itemsets, 10)
+    shuffle_items(pooled_itemsets)
+    
+    te = TransactionEncoder()
+    te_ary = te.fit(itemsets).transform(pooled_itemsets, sparse=True)
+    df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
 
-        frequent_itemsets = apriori(df, min_support=0.05, use_colnames=True, verbose=1, max_len=2)
-        frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/frequent_itemsets_%.0f.csv' %pool, sep=',', index=False)
+    frequent_itemsets = apriori(df, min_support=0.09, use_colnames=True, verbose=1, max_len=2)
+    frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/shuffle_itemsets_ten.csv', sep=',', index=False)
 
-        rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
-        rules = rules[rules.confidence != 1]
-        rules.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/association_rules_%.0f.csv' %pool, sep=',', index=False)
+    rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
+    rules = rules[rules.confidence != 1]
+    rules.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/shuffle_association_rules_ten.csv', sep=',', index=False)

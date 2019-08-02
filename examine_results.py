@@ -22,5 +22,6 @@ ax[0,1].set_title('800 ms, .04 support')
 ax[1,0].set_title('1400 ms, .07 support')
 ax[1,1].set_title('2000 ms, .09 support')
 
+plt.suptitle('Leverage Distribution for Actual Data')
 plt.savefig('./results/individual_support_hists')
 plt.show()
