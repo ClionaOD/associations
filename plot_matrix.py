@@ -57,6 +57,5 @@ lev_df['Consequent'] = series_2
 lev_df['Leverage'] = list(lev_dict.values())
 
 lev_matrix = lev_df.pivot('Antecedent', 'Consequent', 'Leverage')
-ax = sns.heatmap(lev_matrix, center=1 vmin=0, vmax=0.1)
-plt.show()
-#plt.savefig('./results/association_matrix.png')
+ax = sns.heatmap(lev_matrix, center=.05, vmin=0, vmax=0.1)
+plt.savefig('./results/association_matrix.png')
