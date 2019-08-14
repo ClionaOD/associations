@@ -2,9 +2,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import collections
+import seaborn as sns
 
 #Create the dictionary for all possible pairwise comparisons
-itemsets = pd.read_csv('/home/CUSACKLAB/clionaodoherty/associations/results/frequent_itemsets/frequent_itemsets_one_indv.csv', sep=',')
+itemsets = pd.read_csv('./results/frequent_itemsets/frequent_itemsets_one_indv.csv', sep=',')
 itemsets = itemsets[:181]
 items = itemsets['itemsets'].tolist()
 items = [i[12:-3] for i in items]
@@ -40,17 +42,23 @@ lev_dict = {k:v for k,v in zip(ant_con_list,lev)} #actual data points
 symmetric_pairs_list = [(x,y) for x, y in all_combos_dict.keys() if x == y]
 symmetric_pairs_dict = {k:1 for k in symmetric_pairs_list}
 
-pairs_not_zero = lev_dict + symmetric_pairs_dict
+lev_dict.update(symmetric_pairs_dict) #leverage data and diagonal ones
 
-not_in_rekog_data = {key:0 for key in series_dict if not key in lev_dict or not symmetric_pairs_dict} #
+not_in_rekog_data = {key:0 for key in all_combos_dict if not key in lev_dict} 
 
-
-        
-
+lev_dict.update(not_in_rekog_data) #lev_dict is now the correct values for th full 181*181 matrix
+lev_dict = collections.OrderedDict(lev_dict)
+for key in all_combos_list:
+        lev_dict[key] = lev_dict.pop(key)
 
 lev_df = pd.DataFrame()
-lev_df['Series One'] = series_1
-lev_df['Series Two'] = series_2 
+lev_df['Antecedent'] = series_1
+lev_df['Consequent'] = series_2 
+lev_df['Leverage'] = list(lev_dict.values())
+
+lev_matrix = lev_df.pivot('Antecedent', 'Consequent', 'Leverage')
+ax = sns.heatmap(lev_matrix)
+plt.show()
 
 '''
 matrix = np.eye(183,183)
