@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import collections
 import seaborn as sns
+from scipy.spatial import distance
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.manifold import MDS
+from sklearn.metrics import pairwise_distances
 
 #Create the dictionary for all possible pairwise comparisons
 itemsets = pd.read_csv('./results/frequent_itemsets/frequent_itemsets_one_indv.csv', sep=',')
@@ -57,5 +61,36 @@ lev_df['Consequent'] = series_2
 lev_df['Leverage'] = list(lev_dict.values())
 
 lev_matrix = lev_df.pivot('Antecedent', 'Consequent', 'Leverage')
+lev_matrix = lev_df.pivot('Antecedent', 'Consequent', 'Leverage')
 ax = sns.heatmap(lev_matrix, center=.05, vmin=0, vmax=0.1)
 plt.savefig('./results/association_matrix.png')
+
+linked = linkage(lev_matrix, method='ward')
+labelList = all_combos_list
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+dend = dendrogram(linked,
+           orientation='top',
+           labels=labelList,
+           distance_sort='descending',
+           show_leaf_counts=True,
+           ax=ax)
+plt.title('Dendrogram')
+ax.tick_params(axis='x', which='major', labelsize=4)
+ax.tick_params(axis='y', which='major', labelsize=5)
+plt.tight_layout()
+plt.savefig('./results/dendrogram_leverage_matrix.png')
+plt.close()
+
+'''
+rdm = []
+rdm=distance.squareform(distance.pdist(lev_matrix,metric='correlation'))
+
+multi = MDS(n_components=3, dissimilarity='precomputed', random_state=1)
+out = multi.fit_transform(rdm)
+
+plt.scatter(out[:, 0], out[:, 1])
+plt.axis('equal')
+plt.gcf().set_size_inches((20, 20)) 
+plt.show()
+'''
