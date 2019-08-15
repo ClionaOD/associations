@@ -27,5 +27,5 @@ ax[1,0].set_title('1400 ms, .07 support')
 ax[1,1].set_title('2000 ms, .09 support')
 
 plt.suptitle('Leverage Distribution for Real Data')
-plt.savefig('./results/individual_support_hists')
+plt.savefig('./results/figures/individual_support_hists')
 plt.show()
