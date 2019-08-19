@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.cluster.hierarchy as sch
 from sklearn.manifold import MDS
-from sklearn.metrics import pairwise_distances
-from scipy.spatial import distance
 
 def create_leverage_dict(itemspath, rulespath):
     itemsets = pd.read_csv(itemspath, sep=',')
@@ -58,13 +56,14 @@ def reorder_od(dict1,order):
     new_od.update(dict1)
     return new_od
 
-def create_matrix(lev_dict, series1, series2, outpath):
+def create_matrix(lev_dict, series1, series2, reind_order, outpath):
     df = pd.DataFrame()
     df['Antecedents'] = series1
     df['Consequents'] = series2
     df['Leverage'] = list(lev_dict.values())
 
     df = df.pivot('Antecedents', 'Consequents', 'Leverage')
+    df = df.reindex(reind_order, columns=reind_order)
     ax = sns.heatmap(df, center=.05, vmin=0, vmax=0.1)
     plt.savefig(outpath)
     plt.close()
@@ -106,9 +105,9 @@ if __name__ == "__main__":
     
     alphab_dict = reorder_od(leverage_dict, order)
 
-    lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, outpath='./results/figures/v2/association_matrix_alphabetical.jpg')
+    lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath='./results/figures/v2/association_matrix_alphabetical.jpg')
 
-    clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath='./results/figures/v2/dendrogram.pdf')
+    clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath='./results/figures/v2/dendrogram.jpg')
 
     cluster_ants = []
     for x in clusters:
@@ -122,19 +121,6 @@ if __name__ == "__main__":
     cluster_tuples = list(zip(cluster_ants, cluster_cons))
 
     cluster_dict = reorder_od(leverage_dict, cluster_tuples)
-    cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, outpath='./results/figures/v2/association_matrix_clustered.pdf')
+    cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath='./results/figures/v2/association_matrix_clustered.jpg')
 
-    mat = mds(lev_array,outpath='./results/figures/v2/mds.pdf')
-
-'''
-a = collections.OrderedDict([(('a','a'), 1), (('b','b'), 2), (('c','c'), 3)])
-reorder = [('c','c'), ('a','a'),('b','b')]
-def reorder_od(dict1,order):
-    new_od = collections.OrderedDict([(k,None) for k in order if k in dict1])
-    new_od.update(dict1)
-    print(new_od)
-reorder_od(a,reorder)
-
-reorder2 = [('b','b'), ('c','c'), ('a','a')]
-reorder_od(leverage_dict,cluster_tuples) 
-'''
+    mat = mds(lev_array,outpath='./results/figures/v2/mds.jpg')
