@@ -4,7 +4,9 @@ import collections
 import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.cluster.hierarchy as sch
+from scipy.spatial.distance import pdist, squareform
 from sklearn.manifold import MDS
+from sklearn.metrics import euclidean_distances
 
 def create_leverage_dict(itemspath, rulespath):
     itemsets = pd.read_csv(itemspath, sep=',')
@@ -23,7 +25,7 @@ def create_leverage_dict(itemspath, rulespath):
 
     compare_tuples = list(zip(antecedents, consequents))
 
-    leverages = pd.read_csv(rulespath, sep=',') #each list a len of m
+    leverages = pd.read_csv(rulespath, sep=',') 
     ants = leverages['antecedents'].tolist()
     ants = [i[12:-3] for i in ants]
     cons = leverages['consequents'].tolist()
@@ -33,8 +35,8 @@ def create_leverage_dict(itemspath, rulespath):
     leverage_tuples = list(zip(ants, cons))
     leverage_values = [0 if i<0 else i for i in lev]
 
-    compare_dict = {k:0 for k in compare_tuples} #all_combos_dict, len n*n
-    leverage_dict = {k:v for k,v in zip(leverage_tuples, leverage_values)} #lev_dict, len m*m
+    compare_dict = {k:0 for k in compare_tuples} 
+    leverage_dict = {k:v for k,v in zip(leverage_tuples, leverage_values)} 
 
     #update the leverage_dict to include values for item*item as well as items not in leverages
     diagonals = [(x,y) for x, y in compare_dict.keys() if x == y]
@@ -64,7 +66,8 @@ def create_matrix(lev_dict, series1, series2, reind_order, outpath):
 
     df = df.pivot('Antecedents', 'Consequents', 'Leverage')
     df = df.reindex(reind_order, columns=reind_order)
-    ax = sns.heatmap(df, center=.05, vmin=0, vmax=0.1)
+    fig, ax = plt.subplots(figsize=(10,10))
+    sns.heatmap(df, center=.05, vmin=0, vmax=0.1, ax=ax)
     plt.savefig(outpath)
     plt.close()
 
@@ -73,28 +76,30 @@ def create_matrix(lev_dict, series1, series2, reind_order, outpath):
     return df, leverage_array
 
 def hierarchical_clustering(matrix, label_list, outpath):
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig,ax = plt.subplots(figsize=(10,10))
     dend = sch.dendrogram(sch.linkage(matrix, method='ward'), ax=ax, labels=label_list)
-    ax.tick_params(axis='x', labelsize=3)
+    ax.tick_params(axis='x', labelsize=4)
     plt.savefig(outpath)
+    plt.close()
 
     cluster_order = dend['ivl']
 
     return cluster_order
 
 def mds(matrix,outpath):
-    #rdm = []
-    #rdm=distance.squareform(distance.pdist(matrix,metric='correlation'))
+    distance = squareform(pdist(matrix, metric='correlation'))
 
-    embedding = MDS(n_components=2, metric=False, dissimilarity='precomputed', random_state=1)
-    lev_transformed = embedding.fit_transform(lev_array)
+    mds = MDS(n_components=2, dissimilarity='precomputed')
+    pos = mds.fit(distance).embedding_
 
-    plt.scatter(lev_transformed[:, 0], lev_transformed[:, 1])
-    plt.axis('equal')
-    plt.gcf().set_size_inches((20, 20)) 
+    fig = plt.figure(1)
+    ax = plt.axes([0., 0., 1., 1.])
+    plt.scatter(pos[:, 0], pos[:, 1], color='turquoise', lw=0, label='MDS')
+    plt.legend(scatterpoints=1, loc='best', shadow=False)
+
+    #plt.show()
     plt.savefig(outpath)
-
+    plt.close()
 
 if __name__ == "__main__":
 #for pool in range(1,11,3):
@@ -105,9 +110,9 @@ if __name__ == "__main__":
     
     alphab_dict = reorder_od(leverage_dict, order)
 
-    lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath='./results/figures/v2/association_matrix_alphabetical.jpg')
+    lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath='./results/figures/v2/association_matrix_alphabetical_%d.pdf') %1
 
-    clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath='./results/figures/v2/dendrogram.jpg')
+    clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath='./results/figures/v2/dendrogram_%d.pdf') %1
 
     cluster_ants = []
     for x in clusters:
@@ -121,6 +126,6 @@ if __name__ == "__main__":
     cluster_tuples = list(zip(cluster_ants, cluster_cons))
 
     cluster_dict = reorder_od(leverage_dict, cluster_tuples)
-    cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath='./results/figures/v2/association_matrix_clustered.jpg')
+    cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath='./results/figures/v2/association_matrix_clustered_%d.pdf') %1
 
-    mat = mds(lev_array,outpath='./results/figures/v2/mds.jpg')
+    mds(lev_array,outpath='./results/figures/v2/mds_%d.jpg') %1
