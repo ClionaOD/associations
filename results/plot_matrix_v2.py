@@ -105,8 +105,6 @@ if __name__ == "__main__":
     for pool in range(1,11,3):
         itemspath = './results/frequent_itemsets/frequent_itemsets_%d_indv.csv' %pool
         rulespath = './results/association_rules/association_rules_%d_indv.csv' %pool
-        cluster_labels = pd.read_csv('./clustering_order.csv', sep=',')
-        #cluster_labels = cluster_labels['clusters'].tolist()
 
         leverage_dict, antecedents, consequents, order, labels = create_leverage_dict(itemspath=itemspath, rulespath=rulespath)
 
@@ -132,5 +130,3 @@ if __name__ == "__main__":
         cluster_dict = reorder_od(leverage_dict, cluster_tuples)
         cluster_outpath = './results/figures/v2/association_matrix_clustered_%d.pdf' %pool
         cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)
-
-    #mds(lev_array,outpath='./results/figures/v2/mds_%d.jpg') %1
