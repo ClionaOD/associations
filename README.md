@@ -2,11 +2,11 @@
 
 The working repository for association analysis of movies using Amazon Rekognition.
 
-## tag_movies, s3tools and videotools
+### tag_movies, s3tools and videotools
 Scripts for sending videos stored in s3 bucket to Rekognition and processing the results through SQS and SNS.
 Labels are saved to a .pickle file in a new s3 bucket.
 
-## movie_analysis_v2
+### movie_analysis_v2
 Script for analysing the .pickle movie files (must first be downloaded to working directory).
 
 Labels are:
