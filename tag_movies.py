@@ -13,8 +13,8 @@ from pathlib import Path
 import pickle
 import numpy as np
 from scipy import stats
-import s3tools
-import videotools
+import s3tools #local file
+import videotools #local file
 import skvideo
 from PIL import Image, ImageDraw, ImageFont
 import h5py
@@ -34,14 +34,14 @@ def send_movies_to_rekognition_labels(bucket,prefix):
 
     for movie in allfiles['Contents']:
         filename=movie['Key']
-        if filename[-5:]=='.mpeg':
+        if filename[-5:]=='.mpeg': #change according to file type
             print('Working on %s'%filename)
             response = rekognition.start_label_detection(
                 Video={'S3Object': {'Bucket': bucket, 'Name': filename}},
                 ClientRequestToken=hashlib.md5(str('s3://' + bucket + '/' + filename).encode()).hexdigest(),
                 NotificationChannel={
                     'SNSTopicArn': 'arn:aws:sns:eu-west-1:807820536621:AmazonRekognition-movie-associations',
-                    'RoleArn': 'arn:aws:iam::807820536621:role/movie-association-role'
+                    'RoleArn': 'arn:aws:iam::807820536621:role/movie-association-role' #change according to SNS and Role Arn
                 }
             )
             print('Done this one')
@@ -211,18 +211,18 @@ def annotate_movie(bucket,prefix):
     allfiles = s3.list_objects(Bucket=bucket, Prefix=prefix)
 
 
-    #fhdf = h5py.File('/home/cusackrh/Dropbox/projects/brainhack2018/movie_resources/WordNetFeatures.hdf5', 'r')
+    fhdf = h5py.File('/home/cusackrh/Dropbox/projects/brainhack2018/movie_resources/WordNetFeatures.hdf5', 'r')
 
     # List all groups
-    #file_keys = list(fhdf.keys())
-    #data_synsets=list(fhdf['synsets'])
+    file_keys = list(fhdf.keys())
+    data_synsets=list(fhdf['synsets'])
 
     # Create rekognition object
     rekognition=boto3.client('rekognition')
     for movie in allfiles['Contents']:
 
         # Get HCP labels
-        #data_cc = list(fhdf[movie['Key'][-20:-10]])
+        data_cc = list(fhdf[movie['Key'][-20:-10]])
 
         key_coding = movie['Key']
         fn_coding = s3tools.getpath({'S3Bucket':bucket, 'S3ObjectName':key_coding})
@@ -282,8 +282,8 @@ def annotate_movie(bucket,prefix):
                                 
 
                         #if ind<len(data_cc):
-                            #hcplabels=[data_synsets[item[0]] for item in enumerate(data_cc[ind]) if item[1]==1]
-                            #for itemind,item in enumerate(hcplabels):
+                            hcplabels=[data_synsets[item[0]] for item in enumerate(data_cc[ind]) if item[1]==1]
+                            for itemind,item in enumerate(hcplabels):
                                 #draw.text((1400, itemind*16),item.decode('ascii'), (255, 128, 128), font=font)
 
                         # Write annotated frame
@@ -305,12 +305,14 @@ if __name__=='__main__':
 # This sends to movies to rekognition
 send_movies_to_rekognition_labels(bucket, prefix)
 
-# When they're done, process the responses
+# When they're done, process the responses (only run this after SNS has sent email verifying completion)
 #process_sqs_responses(bucket,'AmazonRekognition-movie-association-sqs',doevenifdone=False)
 
-    #don't need to do process_rekognition_video because process_sqs_responses does this
+#don't need to call process_rekognition_video because process_sqs_responses does this if jm['STATUS']=='SUCCEEDED'
 
+""" Annotating the movie files is not necessary
     # Downsample to TR
     #select_frames(bucket,'labels',2000)
 
     #annotate_movie(bucket,'labels_ds')
+"""

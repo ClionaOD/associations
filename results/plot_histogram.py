@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-rules_one = pd.read_csv('./results/association_rules/association_rules_one_indv.csv', sep=',')
-rules_four = pd.read_csv('./results/association_rules/association_rules_four_indv.csv', sep=',')
-rules_seven = pd.read_csv('./results/association_rules/association_rules_seven_indv.csv', sep=',')
-rules_ten = pd.read_csv('./results/association_rules/association_rules_ten_indv.csv', sep=',')
+rules_one = pd.read_csv('./association_rules/association_rules_one_indv.csv', sep=',')
+rules_four = pd.read_csv('./association_rules/association_rules_four_indv.csv', sep=',')
+rules_seven = pd.read_csv('./association_rules/association_rules_seven_indv.csv', sep=',')
+rules_ten = pd.read_csv('./association_rules/association_rules_ten_indv.csv', sep=',')
 
 lev_one = rules_one[['antecedents','consequents','leverage']]
 lev_four = rules_four[['antecedents','consequents','leverage']]
@@ -27,5 +27,5 @@ ax[1,0].set_title('1400 ms, .07 support')
 ax[1,1].set_title('2000 ms, .09 support')
 
 plt.suptitle('Leverage Distribution for Real Data')
-plt.savefig('./results/figures/individual_support_hists')
+plt.savefig('./figures/individual_support_hists')
 plt.show()
