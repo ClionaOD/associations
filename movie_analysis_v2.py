@@ -83,14 +83,14 @@ if __name__ == "__main__":
         itemsets.extend(baskets.values())
 
 #for pool in range(1,11,3):
-    pooled_itemsets = pool_baskets(itemsets, 10)
+    pooled_itemsets = pool_baskets(itemsets, 1)
     shuffle_items(pooled_itemsets)
     
     te = TransactionEncoder()
     te_ary = te.fit(itemsets).transform(pooled_itemsets, sparse=True)
     df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
 
-    frequent_itemsets = apriori(df, min_support=0.09, use_colnames=True, verbose=1, max_len=2)
+    frequent_itemsets = apriori(df, min_support=0.01, use_colnames=True, verbose=1, max_len=2)
     frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/shuffle_itemsets_ten.csv', sep=',', index=False)
 
     rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
