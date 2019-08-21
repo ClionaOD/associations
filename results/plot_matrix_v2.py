@@ -46,10 +46,13 @@ def create_leverage_dict(itemspath, rulespath):
     absences = {k:0 for k in compare_dict if not k in leverage_dict} 
     leverage_dict.update(absences) 
 
+    print('begin symmetry fix')
     for k1, v1 in leverage_dict.items():
         for k2, v2 in leverage_dict.items():
             if k1[0] == k2[1] and k1[1] == k2[0] and not v1 == 0:
                 leverage_dict[k2] = v1
+    
+    print('complete')
 
     return leverage_dict, antecedents, consequents, compare_tuples, itemsets
 
@@ -72,6 +75,7 @@ def create_matrix(lev_dict, series1, series2, reind_order, outpath):
     plt.close()
 
     leverage_array = df.to_numpy()
+    print('matrix created')
 
     return df, leverage_array
 
@@ -83,6 +87,7 @@ def hierarchical_clustering(matrix, label_list, outpath):
     plt.close()
 
     cluster_order = dend['ivl']
+    print('clustering complete')
 
     return cluster_order
 
