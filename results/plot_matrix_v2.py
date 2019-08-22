@@ -31,7 +31,7 @@ def create_leverage_dict(itemspath, rulespath):
     cons = leverages['consequents'].tolist()
     cons = [i[12:-3] for i in cons]
     lev = leverages['leverage'].tolist()
-    
+
     leverage_tuples = list(zip(ants, cons))
     leverage_values = [0 if i<0 else i for i in lev]
 
@@ -46,17 +46,22 @@ def create_leverage_dict(itemspath, rulespath):
     absences = {k:0 for k in compare_dict if not k in leverage_dict} 
     leverage_dict.update(absences) 
 
-    for k1, v1 in leverage_dict.items():
-        for k2, v2 in leverage_dict.items():
-            if k1[0] == k2[1] and k1[1] == k2[0] and not v1 == 0:
-                leverage_dict[k2] = v1
-
     return leverage_dict, antecedents, consequents, compare_tuples, itemsets
 
 def reorder_od(dict1,order):
     new_od = collections.OrderedDict([(k,None) for k in order if k in dict1])
     new_od.update(dict1)
+    
     return new_od
+
+def make_symm(df, idx1, idx2):
+    a=idx1
+    b=idx2
+    if df.iloc[a][b] != df.iloc[b][a] and df.iloc[a][b]!=0:
+        df.iloc[b][a] = df.iloc[a][b]
+    if df.iloc[b][a] != df.iloc[a][b] and df.iloc[b][a]!=0:
+        df.iloc[a][b] = df.iloc[b][a]
+    return df
 
 def create_matrix(lev_dict, series1, series2, reind_order, outpath):
     df = pd.DataFrame()
@@ -66,6 +71,11 @@ def create_matrix(lev_dict, series1, series2, reind_order, outpath):
 
     df = df.pivot('Antecedents', 'Consequents', 'Leverage')
     df = df.reindex(reind_order, columns=reind_order)
+
+    for i in range(0,len(df)):
+        for j in range(0,len(df)):
+            make_symm(df,i,j)
+
     fig, ax = plt.subplots(figsize=(10,10))
     sns.heatmap(df, center=.05, vmin=0, vmax=0.1, ax=ax)
     plt.savefig(outpath)
