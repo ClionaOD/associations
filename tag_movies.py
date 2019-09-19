@@ -34,7 +34,7 @@ def send_movies_to_rekognition_labels(bucket,prefix):
 
     for movie in allfiles['Contents']:
         filename=movie['Key']
-        if filename[-5:]=='.mpeg': #change according to file type
+        if filename[-4:]=='.mp4': #change according to file type
             print('Working on %s'%filename)
             response = rekognition.start_label_detection(
                 Video={'S3Object': {'Bucket': bucket, 'Name': filename}},
@@ -204,7 +204,7 @@ def select_frames(bucket,prefix,TR):
             s3bucket.upload_file(fn_labels_ds, fn_labels_ds)
 
 
-
+'''
 def annotate_movie(bucket,prefix):
     # List all objects in the bucket
     s3 = boto3.client('s3')
@@ -287,26 +287,26 @@ def annotate_movie(bucket,prefix):
                                 #draw.text((1400, itemind*16),item.decode('ascii'), (255, 128, 128), font=font)
 
                         # Write annotated frame
-                        writer.writeFrame(newImage)
+                           # writer.writeFrame(newImage)
 
-                    writer.close()
+                    #writer.close()
 
 
                     s3bucket = boto3.resource('s3').Bucket(obj['vid']['S3Bucket'])
                     s3bucket.upload_file(outfn_annotated, outkey_annotated)
 
                     print('Done writing video')
-
+'''
 
 if __name__=='__main__':
     bucket="movie-associations"
-    prefix="AssociationMoviesTranscoded"
+    prefix="movies-four"
 
 # This sends to movies to rekognition
-send_movies_to_rekognition_labels(bucket, prefix)
+#send_movies_to_rekognition_labels(bucket, prefix)
 
 # When they're done, process the responses (only run this after SNS has sent email verifying completion)
-#process_sqs_responses(bucket,'AmazonRekognition-movie-association-sqs',doevenifdone=False)
+process_sqs_responses(bucket,'AmazonRekognition-movie-association-sqs',doevenifdone=False)
 
 #don't need to call process_rekognition_video because process_sqs_responses does this if jm['STATUS']=='SUCCEEDED'
 
