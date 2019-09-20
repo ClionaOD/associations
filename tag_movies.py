@@ -300,7 +300,7 @@ def annotate_movie(bucket,prefix):
 
 if __name__=='__main__':
     bucket="movie-associations"
-    prefix="movies-four"
+    prefix="movies-five"
 
 # This sends to movies to rekognition
 #send_movies_to_rekognition_labels(bucket, prefix)
