@@ -1,3 +1,11 @@
+"""
+Author: Cliona O'Doherty
+
+Description: A script for the analysis of labels returned from Amazon Rekognition video tagging. 
+This script performs an association analysis on the labels, finding the items that frequently co-occur. 
+Various association metrics are returned using mlxtend apriori and association rules
+"""
+
 import pickle
 import glob
 import pandas as pd
@@ -62,9 +70,25 @@ def shuffle_items(lst):
                 a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
                 count += 1
 
+def shuffle_baskets(lst):
+    pass
+
+def perform_apriori_association(itemsets, min_sup, itemsets_path, rules_path):
+    te = TransactionEncoder()
+    te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
+    df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
+
+    frequent_itemsets = apriori(df, min_support=min_sup, use_colnames=True, verbose=1, max_len=2) ##ERROR IS HERE, MEMORY ERROR
+    frequent_itemsets.to_csv(itemsets_path, sep=',', index=False)
+
+    rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
+    rules = rules[rules.confidence != 1]
+    rules.to_csv(rules_path, sep=',', index=False)
+
 if __name__ == "__main__":
-        
-    files = glob.glob('/home/CUSACKLAB/clionaodoherty/associations/data/*.pickle')
+
+    #import labels    
+    files = glob.glob('./data/*.pickle')
     movies = []
     for file in files:
         file_Name = file
@@ -77,22 +101,22 @@ if __name__ == "__main__":
         del movie['deltat']
         del movie['vid']
 
+    #structure labels into "baskets" of latency 200 ms
     itemsets = []
     for movie in movies:
         baskets = fill_baskets(create_baskets(movie), movie)
         itemsets.extend(baskets.values())
 
-#for pool in range(1,11,3):
-    pooled_itemsets = pool_baskets(itemsets, 1)
+    #pool baskets into latency 200 ms, 800 ms, 700 ms, 2000 ms)
+    pooled = []
+    for pool in range(1,11,3):
+        pooled_itemsets = pool_baskets(itemsets, pool)
+        pooled.append(pooled_itemsets)
+
+    #perform apriori and association
+    perform_apriori_association(itemsets=pooled[0], min_sup=0.03, itemsets_path='./results/frequent_itemsets/90_itemsets_one.csv', rules_path='./results/association_rules/90_association_rules_one.csv')
+    perform_apriori_association(itemsets=pooled[0], min_sup=0.05, itemsets_path='./results/frequent_itemsets/90_itemsets_four.csv', rules_path='./results/association_rules/90_association_rules_four.csv')
+    perform_apriori_association(itemsets=pooled[0], min_sup=0.07, itemsets_path='./results/frequent_itemsets/90_itemsets_seven.csv', rules_path='./results/association_rules/90_association_rules_seven.csv')
+    perform_apriori_association(itemsets=pooled[0], min_sup=0.09, itemsets_path='./results/frequent_itemsets/90_itemsets_ten.csv', rules_path='./results/association_rules/90_association_rules_ten.csv')
+
     #shuffle_items(pooled_itemsets)
-    
-    te = TransactionEncoder()
-    te_ary = te.fit(itemsets).transform(pooled_itemsets, sparse=True)
-    df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
-
-    frequent_itemsets = apriori(df, min_support=0.5, use_colnames=True, verbose=1, max_len=2) ##ERROR IS HERE, MEMORY ERROR
-    frequent_itemsets.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/frequent_itemsets/itemsets_one.csv', sep=',', index=False)
-
-    rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
-    rules = rules[rules.confidence != 1]
-    rules.to_csv(r'/home/CUSACKLAB/clionaodoherty/associations/results/association_rules/association_rules_one.csv', sep=',', index=False)
