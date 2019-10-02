@@ -112,31 +112,31 @@ def mds(matrix,outpath):
     plt.close()
 
 if __name__ == "__main__":
-    for pool in range(1,11,3):
-        itemspath = './results/frequent_itemsets/frequent_itemsets_%d_indv.csv' %pool
-        rulespath = './results/association_rules/association_rules_%d_indv.csv' %pool
+#for pool in range(1,11,3):
+    itemspath = './results/frequent_itemsets/itemsets_ten.csv' #%pool
+    rulespath = './results/association_rules/association_rules_ten.csv' #%pool
 
-        leverage_dict, antecedents, consequents, order, labels = create_leverage_dict(itemspath=itemspath, rulespath=rulespath)
+    leverage_dict, antecedents, consequents, order, labels = create_leverage_dict(itemspath=itemspath, rulespath=rulespath)
 
-        alphab_dict = reorder_od(leverage_dict, order)
+    alphab_dict = reorder_od(leverage_dict, order)
 
-        alphab_outpath = './results/figures/v2/association_matrix_alphabetical_%d.pdf' %pool
-        lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath=alphab_outpath) 
+    alphab_outpath = './results/figures/v3/association_matrix_alphabetical_ten.pdf' #%pool
+    lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath=alphab_outpath) 
 
-        dendro_outpath = './results/figures/v2/dendrogram_%d.pdf' %pool
-        clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath=dendro_outpath)
+    dendro_outpath = './results/figures/v3/dendrogram_ten.pdf' #%pool
+    clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath=dendro_outpath)
 
-        cluster_ants = []
-        for x in clusters:
-            for i in range(len(clusters)):
-                cluster_ants.append(x)
+    cluster_ants = []
+    for x in clusters:
+        for i in range(len(clusters)):
+            cluster_ants.append(x)
 
-        cluster_cons = []
-        for i in range(0, len(clusters)):
-            cluster_cons.extend(clusters)
+    cluster_cons = []
+    for i in range(0, len(clusters)):
+        cluster_cons.extend(clusters)
 
-        cluster_tuples = list(zip(cluster_ants, cluster_cons))
+    cluster_tuples = list(zip(cluster_ants, cluster_cons))
 
-        cluster_dict = reorder_od(leverage_dict, cluster_tuples)
-        cluster_outpath = './results/figures/v2/association_matrix_clustered_%d.pdf' %pool
-        cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)
+    cluster_dict = reorder_od(leverage_dict, cluster_tuples)
+    cluster_outpath = './results/figures/v3/association_matrix_clustered_ten.pdf' #%pool
+    cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)

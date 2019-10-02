@@ -16,21 +16,30 @@ from mlxtend.frequent_patterns import association_rules
 
 
 def create_baskets(dict1):
+    """
+    Create the empty baskets from the labels returned by Rekognition, one for each unique timestamp.
+    """
     uniquetimestamps = set([x['Timestamp'] for x in dict1['alllabels']])
     basket = { i: [] for i in uniquetimestamps}
     return basket
 
 def fill_baskets(dict1, dict2):
-    #dict1 is the empty baskets for each movie (i.e. basket from create_baskets)
-    #dict2 is the same as create_baskets' arg, each movie's labels.
+    """
+    Fills the empty baskets with labels corresponding to the timestamp.
+    dict1: the empty baskets for each movie (i.e. basket from create_baskets).
+    dict2: the same as arg passed to create_baskets, i.e. each movie's labels.
+    """
     for vals in dict2['alllabels']:
         dict1[vals['Timestamp']].extend([vals['Label']['Name']])
     
     return dict1
 
 def pool_baskets(inlist, multiply_frames=1):
-    #inlist is the itemsets list of lists
-    #multiple_frames is what to multiply 200 ms by to get desired pooling e.g. multiply_frames=10 for 2 second baskets
+    """
+    Pool the basket latencies from default 200 ms up to desired length.
+    inlist: the itemsets, a list of lists containing the labels
+    multiple_frames: what to multiply 200 ms by to get desired pooling e.g. multiply_frames=10 for 2 second baskets
+    """
     outlist = []
     startpoint = 0
 
@@ -59,6 +68,10 @@ def pool_baskets(inlist, multiply_frames=1):
     return final_list
 
 def shuffle_items(lst):
+    """
+    Randomly shuffle items between baskets 1 million times, ensuring no repetition of an item in a basket.
+    lst: the itemsets, either pooled or not.
+    """
     count = 0
     while count < 1000000:
         a = random.choice(lst)
@@ -71,9 +84,18 @@ def shuffle_items(lst):
                 count += 1
 
 def shuffle_baskets(lst):
+    """
+    Shuffle the basket order rather than items within the baskets.
+    """
     pass
 
 def perform_apriori_association(itemsets, min_sup, itemsets_path, rules_path):
+    """
+    itemsets: a list of lists containing the baskets/labels.
+    min_sup: the minimum support threshold to set for the apriori algorithm.
+    itemsets_path: the output path for a .csv file containing the frequent itemsets.
+    rules_path: the output path for a .csv file containing association rules and metrics.
+    """
     te = TransactionEncoder()
     te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
     df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
@@ -114,9 +136,9 @@ if __name__ == "__main__":
         pooled.append(pooled_itemsets)
 
     #perform apriori and association
-    perform_apriori_association(itemsets=pooled[0], min_sup=0.03, itemsets_path='./results/frequent_itemsets/90_itemsets_one.csv', rules_path='./results/association_rules/90_association_rules_one.csv')
-    perform_apriori_association(itemsets=pooled[0], min_sup=0.05, itemsets_path='./results/frequent_itemsets/90_itemsets_four.csv', rules_path='./results/association_rules/90_association_rules_four.csv')
-    perform_apriori_association(itemsets=pooled[0], min_sup=0.07, itemsets_path='./results/frequent_itemsets/90_itemsets_seven.csv', rules_path='./results/association_rules/90_association_rules_seven.csv')
-    perform_apriori_association(itemsets=pooled[0], min_sup=0.09, itemsets_path='./results/frequent_itemsets/90_itemsets_ten.csv', rules_path='./results/association_rules/90_association_rules_ten.csv')
+    perform_apriori_association(itemsets=pooled[0], min_sup=0.6, itemsets_path='./results/frequent_itemsets/itemsets_one.csv', rules_path='./results/association_rules/association_rules_one.csv')
+    perform_apriori_association(itemsets=pooled[1], min_sup=0.05, itemsets_path='./results/frequent_itemsets/itemsets_four.csv', rules_path='./results/association_rules/association_rules_four.csv')
+    perform_apriori_association(itemsets=pooled[2], min_sup=0.8, itemsets_path='./results/frequent_itemsets/itemsets_seven.csv', rules_path='./results/association_rules/association_rules_seven.csv')
+    perform_apriori_association(itemsets=pooled[3], min_sup=0.4, itemsets_path='./results/frequent_itemsets/itemsets_ten.csv', rules_path='./results/association_rules/association_rules_ten.csv')
 
     #shuffle_items(pooled_itemsets)
