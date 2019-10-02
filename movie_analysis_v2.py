@@ -129,11 +129,17 @@ if __name__ == "__main__":
         baskets = fill_baskets(create_baskets(movie), movie)
         itemsets.extend(baskets.values())
 
+    count = 0 
+    for basket in itemsets:
+        count += len(basket)
+    print("The total number of labels is {}".format(count))
+
     #pool baskets into latency 200 ms, 800 ms, 700 ms, 2000 ms)
     pooled = []
     for pool in range(1,11,3):
         pooled_itemsets = pool_baskets(itemsets, pool)
         pooled.append(pooled_itemsets)
+        print('For the {} group there are {} number of baskets'.format(pool,len(pooled_itemsets)))
 
     #perform apriori and association
     perform_apriori_association(itemsets=pooled[0], min_sup=0.6, itemsets_path='./results/frequent_itemsets/itemsets_one.csv', rules_path='./results/association_rules/association_rules_one.csv')
