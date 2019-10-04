@@ -64,12 +64,14 @@ def make_symm(df, idx1, idx2):
     return df
 
 def create_matrix(lev_dict, series1, series2, reind_order, outpath):
-    df = pd.DataFrame()
-    df['Antecedents'] = series1
-    df['Consequents'] = series2
-    df['Leverage'] = list(lev_dict.values())
+    all_df = pd.DataFrame()
+    all_df['Antecedents'] = series1
+    all_df['Consequents'] = series2
+    all_df['Leverage'] = list(lev_dict.values())
+    all_df['Log Leverage'] = all_df['Leverage'].transform(lambda x: np.log(x))
 
-    df = df.pivot('Antecedents', 'Consequents', 'Leverage')
+    df = all_df[['Antecedents', 'Consequents', 'Log Leverage']]
+    df = df.pivot('Antecedents', 'Consequents', 'Log Leverage')
     df = df.reindex(reind_order, columns=reind_order)
 
     for i in range(0,len(df)):
@@ -77,11 +79,17 @@ def create_matrix(lev_dict, series1, series2, reind_order, outpath):
             make_symm(df,i,j)
 
     fig, ax = plt.subplots(figsize=(10,10))
-    sns.heatmap(df, center=.05, vmin=0, vmax=0.25, ax=ax)
+    sns.heatmap(df, cmap="RdBu", ax=ax)
     plt.savefig(outpath)
     plt.close()
 
-    leverage_array = df.to_numpy()
+    leverage_df = all_df[['Antecedents', 'Consequents', 'Leverage']]
+    leverage_df = leverage_df.pivot('Antecedents', 'Consequents', 'Leverage')
+    leverage_df = leverage_df.reindex(reind_order, columns=reind_order)
+    for i in range(0,len(leverage_df)):
+        for j in range(0,len(leverage_df)):
+            make_symm(leverage_df,i,j)
+    leverage_array = leverage_df.to_numpy()
 
     return df, leverage_array
 
