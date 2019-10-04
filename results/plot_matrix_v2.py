@@ -77,7 +77,7 @@ def create_matrix(lev_dict, series1, series2, reind_order, outpath):
             make_symm(df,i,j)
 
     fig, ax = plt.subplots(figsize=(10,10))
-    sns.heatmap(df, center=.05, vmin=0, vmax=0.1, ax=ax)
+    sns.heatmap(df, center=.05, vmin=0, vmax=0.25, ax=ax)
     plt.savefig(outpath)
     plt.close()
 
@@ -95,21 +95,6 @@ def hierarchical_clustering(matrix, label_list, outpath):
     cluster_order = dend['ivl']
 
     return cluster_order
-
-def mds(matrix,outpath):
-    distance = squareform(pdist(matrix, metric='correlation'))
-
-    mds = MDS(n_components=2, dissimilarity='precomputed')
-    pos = mds.fit(distance).embedding_
-
-    fig = plt.figure(1)
-    ax = plt.axes([0., 0., 1., 1.])
-    plt.scatter(pos[:, 0], pos[:, 1], color='turquoise', lw=0, label='MDS')
-    plt.legend(scatterpoints=1, loc='best', shadow=False)
-
-    #plt.show()
-    plt.savefig(outpath)
-    plt.close()
 
 if __name__ == "__main__":
     """
