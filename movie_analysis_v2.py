@@ -72,24 +72,30 @@ def shuffle_items(lst):
     Randomly shuffle items between baskets 1 million times, ensuring no repetition of an item in a basket.
     lst: the itemsets, either pooled or not.
     """
+    _ = lst
     count = 0
     while count < 1000000:
-        a = random.choice(lst)
-        b = random.choice(lst)
+        a = random.choice(_)
+        b = random.choice(_)
         if not a == b:
             rand_idx_a = random.randint(0, len(a)-1)
             rand_idx_b = random.randint(0, len(b)-1)
             if not a[rand_idx_a] in b:
                 a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
                 count += 1
+    return _
 
 def shuffle_baskets(lst):
     """
     Shuffle the basket order rather than items within the baskets.
     """
-    pass
+    _ = lst
+    idx = range(len(_))
+    i1, i2 = random.sample(idx, 2)
+    _[i1], _[i2] = _[i2], _[i1]
+    return _
 
-def perform_apriori_association(itemsets, min_sup, itemsets_path, rules_path):
+def perform_apriori_association(itemsets, min_sup, itemsets_path, rules_path, save_items=True):
     """
     itemsets: a list of lists containing the baskets/labels.
     min_sup: the minimum support threshold to set for the apriori algorithm.
@@ -100,8 +106,9 @@ def perform_apriori_association(itemsets, min_sup, itemsets_path, rules_path):
     te_ary = te.fit(itemsets).transform(itemsets, sparse=True)
     df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
 
-    frequent_itemsets = apriori(df, min_support=min_sup, use_colnames=True, verbose=1, max_len=2) ##ERROR IS HERE, MEMORY ERROR
-    frequent_itemsets.to_csv(itemsets_path, sep=',', index=False)
+    frequent_itemsets = apriori(df, min_support=min_sup, use_colnames=True, verbose=1, max_len=2) 
+    if save_items=True: #This is invalid syntax
+        frequent_itemsets.to_csv(itemsets_path, sep=',', index=False)
 
     rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.5)
     rules = rules[rules.confidence != 1]
@@ -142,9 +149,33 @@ if __name__ == "__main__":
         print('For the {} group there are {} number of baskets'.format(pool,len(pooled_itemsets)))
 
     #perform apriori and association
-    perform_apriori_association(itemsets=pooled[0], min_sup=0.6, itemsets_path='./results/frequent_itemsets/itemsets_one.csv', rules_path='./results/association_rules/association_rules_one.csv')
-    perform_apriori_association(itemsets=pooled[1], min_sup=0.05, itemsets_path='./results/frequent_itemsets/itemsets_four.csv', rules_path='./results/association_rules/association_rules_four.csv')
-    perform_apriori_association(itemsets=pooled[2], min_sup=0.8, itemsets_path='./results/frequent_itemsets/itemsets_seven.csv', rules_path='./results/association_rules/association_rules_seven.csv')
-    perform_apriori_association(itemsets=pooled[3], min_sup=0.4, itemsets_path='./results/frequent_itemsets/itemsets_ten.csv', rules_path='./results/association_rules/association_rules_ten.csv')
+    one_support = 0.02
+    four_support = 0.08
+    seven_suport = 0.12
+    ten_support = 0.15
 
-    #shuffle_items(pooled_itemsets)
+    perform_apriori_association(itemsets=pooled[0], min_sup=one_support, itemsets_path='./results/frequent_itemsets/itemsets_1.csv', rules_path='./results/association_rules/association_rules_1.csv')
+    perform_apriori_association(itemsets=pooled[1], min_sup=four_support, itemsets_path='./results/frequent_itemsets/itemsets_4.csv', rules_path='./results/association_rules/association_rules_4.csv')
+    perform_apriori_association(itemsets=pooled[2], min_sup=seven_suport, itemsets_path='./results/frequent_itemsets/itemsets_7.csv', rules_path='./results/association_rules/association_rules_7.csv')
+    perform_apriori_association(itemsets=pooled[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/itemsets_10.csv', rules_path='./results/association_rules/association_rules_10.csv')
+
+    #from here doesn't actually work
+    shuffled_items = []
+    for latency in pooled:
+        _ = shuffle_items(latency)
+        shuffled_items.append(_)
+    
+    perform_apriori_association(itemsets=shuffled_items[0], min_sup=one_support, save_items=False, rules_path='./results/association_rules/item_shuffle_association_rules_1.csv')
+    perform_apriori_association(itemsets=shuffled_items[1], min_sup=four_support, save_items=False, rules_path='./results/association_rules/item_shuffle_association_rules_4.csv')
+    perform_apriori_association(itemsets=shuffled_items[2], min_sup=seven_suport, save_items=False, rules_path='./results/association_rules/item_shuffle_association_rules_7.csv')
+    perform_apriori_association(itemsets=shuffled_items[3], min_sup=ten_support, save_items=False, rules_path='./results/association_rules/item_shuffle_association_rules_10.csv')
+
+    shuffled_baskets = []
+    for latency in pooled:
+        _ = shuffle_baskets(latency)
+        shuffled_baskets.append(latency)
+
+    perform_apriori_association(itemsets=shuffled_baskets[0], min_sup=one_support, itemsets_path='./results/frequent_itemsets/basket_shuffle_itemsets_1.csv', rules_path='./results/association_rules/basket_shuffle_association_rules_1.csv')
+    perform_apriori_association(itemsets=shuffled_baskets[1], min_sup=four_support, itemsets_path='./results/frequent_itemsets/basket_shuffle_itemsets_4.csv', rules_path='./results/association_rules/basket_shuffle_association_rules_4.csv')
+    perform_apriori_association(itemsets=shuffled_baskets[2], min_sup=seven_suport, itemsets_path='./results/frequent_itemsets/basket_shuffle_itemsets_7.csv', rules_path='./results/association_rules/basket_shuffle_association_rules_7.csv')
+    perform_apriori_association(itemsets=shuffled_baskets[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/basket_shuffle_itemsets_10.csv', rules_path='./results/association_rules/basket_shuffle_association_rules_10.csv')
