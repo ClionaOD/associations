@@ -92,5 +92,5 @@ ax[1,0].set_title('1400 ms, .07 support')
 ax[1,1].set_title('2000 ms, .09 support')
 
 plt.suptitle('Leverage Distribution for Shuffled Data (items shuffled)')
-plt.savefig('./results/figures/v3/item_shuffle_leverage_distribution.pdf')
+plt.savefig('./results/figures/v3/basket_shuffle/item_shuffle_leverage_distribution.pdf')
 plt.close()
