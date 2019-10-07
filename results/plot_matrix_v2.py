@@ -77,8 +77,8 @@ def create_matrix(lev_dict, series1, series2, reind_order, outpath):
         for j in range(0,len(df)):
             make_symm(df,i,j)
 
-    fig, ax = plt.subplots(figsize=(15,20))
-    sns.heatmap(df, vmin=0, vmax=0.25, center=0.125, ax=ax)
+    fig, ax = plt.subplots(figsize=(20,20))
+    sns.heatmap(df, vmin=0, vmax=0.1, center=0.05, ax=ax)
     plt.savefig(outpath)
     plt.close()
     
