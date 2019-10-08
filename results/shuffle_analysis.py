@@ -1,7 +1,12 @@
+"""
+Author: Cliona O'Doherty
+Description: Continue the analysis as in analyse_itemsets.py, this time with controls for 
+shuffling the temporal order of the baskets.
+"""
 import pickle
 import copy
 import random
-import movie_analysis_v2
+import analyse_itemsets
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
@@ -30,7 +35,6 @@ def shuffle_baskets(lst):
     Shuffle the basket order rather than items within the baskets.
     """
     _ = copy.deepcopy(lst)
-    #_ = lst
     count = 0
     while count < 1000000:
         idx = range(len(_))
@@ -51,7 +55,7 @@ if __name__ == "__main__":
     #pool these
     shuffle_bask_pooled = []
     for pool in range(1,11,3):
-        pooled_itemsets = movie_analysis_v2.pool_baskets(bask_shuffled, pool)
+        pooled_itemsets = analyse_itemsets.pool_baskets(bask_shuffled, pool)
         shuffle_bask_pooled.append(pooled_itemsets)
         print('For the {} group there are {} number of baskets'.format(pool,len(pooled_itemsets)))
     
@@ -61,10 +65,10 @@ if __name__ == "__main__":
     seven_suport = 0.12
     ten_support = 0.163
 
-    movie_analysis_v2.perform_apriori_association(itemsets=shuffle_bask_pooled[0], min_sup=one_support, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_1.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_1.csv')
-    movie_analysis_v2.perform_apriori_association(itemsets=shuffle_bask_pooled[1], min_sup=four_support, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_4.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_4.csv')
-    movie_analysis_v2.perform_apriori_association(itemsets=shuffle_bask_pooled[2], min_sup=seven_suport, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_7.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_7.csv')
-    movie_analysis_v2.perform_apriori_association(itemsets=shuffle_bask_pooled[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_10.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_10.csv')
+    analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[0], min_sup=one_support, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_1.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_1.csv')
+    analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[1], min_sup=four_support, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_4.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_4.csv')
+    analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[2], min_sup=seven_suport, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_7.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_7.csv')
+    analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/correct_basket_shuffle_itemsets_10.csv', rules_path='./results/association_rules/correct_basket_shuffle_association_rules_10.csv')
 
     #shuffle items and pool those
     if itemsets == bask_shuffled:
@@ -72,7 +76,7 @@ if __name__ == "__main__":
     else:
         shuffle_items_pooled = []
         for pool in range(1,11,3):
-            pooled_itemsets = movie_analysis_v2.pool_baskets(itemsets, pool)
+            pooled_itemsets = analyse_itemsets.pool_baskets(itemsets, pool)
             shuffle_items_pooled.append(pooled_itemsets)
             print('For the {} group there are {} number of baskets'.format(pool,len(pooled_itemsets)))
         for i in shuffle_items_pooled:
@@ -81,7 +85,7 @@ if __name__ == "__main__":
     if shuffle_items_pooled[0] == itemsets:
         print('Error: shuffling items did not work')
     else:
-        movie_analysis_v2.perform_apriori_association(itemsets=shuffle_items_pooled[0], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_1.csv', rules_path='./results/association_rules/item_shuffle_association_rules_1.csv')
-        movie_analysis_v2.perform_apriori_association(itemsets=shuffle_items_pooled[1], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_4.csv', rules_path='./results/association_rules/item_shuffle_association_rules_4.csv')
-        movie_analysis_v2.perform_apriori_association(itemsets=shuffle_items_pooled[2], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_7.csv', rules_path='./results/association_rules/item_shuffle_association_rules_7.csv')
-        movie_analysis_v2.perform_apriori_association(itemsets=shuffle_items_pooled[3], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_10.csv', rules_path='./results/association_rules/item_shuffle_association_rules_10.csv')
+        analyse_itemsets.perform_apriori_association(itemsets=shuffle_items_pooled[0], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_1.csv', rules_path='./results/association_rules/item_shuffle_association_rules_1.csv')
+        analyse_itemsets.perform_apriori_association(itemsets=shuffle_items_pooled[1], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_4.csv', rules_path='./results/association_rules/item_shuffle_association_rules_4.csv')
+        analyse_itemsets.perform_apriori_association(itemsets=shuffle_items_pooled[2], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_7.csv', rules_path='./results/association_rules/item_shuffle_association_rules_7.csv')
+        analyse_itemsets.perform_apriori_association(itemsets=shuffle_items_pooled[3], min_sup=one_support, itemsets_path='/results/frequent_itemsets/item_shuffle_itemsets_10.csv', rules_path='./results/association_rules/item_shuffle_association_rules_10.csv')

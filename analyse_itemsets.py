@@ -68,38 +68,6 @@ def pool_baskets(inlist, multiply_frames=1):
         final_list.append(outlist2)
     return final_list
 
-def shuffle_items(lst):
-    """
-    Randomly shuffle items between baskets 1 million times, ensuring no repetition of an item in a basket.
-    lst: the itemsets, either pooled or not.
-    """
-    _ = copy.deepcopy(lst)
-    count = 0
-    while count < 1000000:
-        a = random.choice(_)
-        b = random.choice(_)
-        if not a == b:
-            rand_idx_a = random.randint(0, len(a)-1)
-            rand_idx_b = random.randint(0, len(b)-1)
-            if not a[rand_idx_a] in b:
-                a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
-                count += 1
-    return _
-
-def shuffle_baskets(lst):
-    """
-    Shuffle the basket order rather than items within the baskets.
-    """
-    _ = copy.deepcopy(lst)
-    #_ = lst
-    count = 0
-    while count < 1000000:
-        idx = range(len(_))
-        i1, i2 = random.sample(idx, 2)
-        _[i1], _[i2] = _[i2], _[i1]
-        count += 1
-    return _
-
 def perform_apriori_association(itemsets, min_sup, itemsets_path, rules_path):
     """
     itemsets: a list of lists containing the baskets/labels.
