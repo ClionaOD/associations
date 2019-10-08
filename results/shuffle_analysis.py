@@ -17,18 +17,17 @@ def shuffle_items(lst):
     Randomly shuffle items between baskets 1 million times, ensuring no repetition of an item in a basket.
     lst: the itemsets, either pooled or not.
     """
-    _ = copy.deepcopy(lst)
     count = 0
-    while count < 1000000:
-        a = random.choice(_)
-        b = random.choice(_)
+    while count < 100000000:
+        a = random.choice(lst)
+        b = random.choice(lst)
         if not a == b:
             rand_idx_a = random.randint(0, len(a)-1)
             rand_idx_b = random.randint(0, len(b)-1)
             if not a[rand_idx_a] in b:
                 a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
                 count += 1
-    return _
+    return lst
 
 def shuffle_baskets(lst):
     """
@@ -70,3 +69,18 @@ if __name__ == "__main__":
         b = analyse_itemsets.pool_baskets(shuffled, pool)
         shuffled_first.append(b)
     analyse_itemsets.perform_apriori_association(itemsets=shuffled_first[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/basket_shuffle_itemsets_10.csv', rules_path='./results/association_rules/basket_shuffle_association_rules_10.csv')
+
+    a = shuffle_items(itemsets)
+
+one_support = 0.021
+four_support = 0.075
+seven_support = 0.12
+ten_support = 0.163
+items_shuffled = []
+for pool in range(1,11,3):
+    b = analyse_itemsets.pool_baskets(a, pool)
+    items_shuffled.append(b)
+analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[0], min_sup=one_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_1.csv', rules_path='./results/association_rules/item_shuffle_association_rules_1.csv')
+analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[1], min_sup=four_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_4.csv', rules_path='./results/association_rules/item_shuffle_association_rules_4.csv')
+analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[2], min_sup=seven_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_7.csv', rules_path='./results/association_rules/item_shuffle_association_rules_7.csv')
+analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_10.csv', rules_path='./results/association_rules/item_shuffle_association_rules_10.csv')
