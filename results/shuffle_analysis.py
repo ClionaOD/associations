@@ -52,6 +52,39 @@ if __name__ == "__main__":
     #shuffle order of baskets
     bask_shuffled = shuffle_baskets(itemsets)
 
+'''
+pooled = []
+for pool in range(1,11,3):
+    a = analyse_itemsets.pool_baskets(itemsets, pool)
+    pooled.append(a)
+
+one = pooled[0]
+four = pooled[1]
+seven = pooled[2]
+ten = pooled[3]
+
+one = shuffle_baskets(one)
+four = shuffle_baskets(four)
+seven = shuffle_baskets(seven)
+ten = shuffle_baskets(ten)
+
+one == pooled[0]
+four == pooled[1]
+seven == pooled[2]
+ten == pooled[3]
+
+one_support = 0.021
+four_support = 0.075
+seven_suport = 0.12
+ten_support = 0.163
+
+analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[0], min_sup=one_support, itemsets_path='./results/frequent_itemsets/wrong_basket_shuffle_itemsets_1.csv', rules_path='./results/association_rules/wrong_basket_shuffle_association_rules_1.csv')
+analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[1], min_sup=four_support, itemsets_path='./results/frequent_itemsets/wrong_basket_shuffle_itemsets_4.csv', rules_path='./results/association_rules/wrong_basket_shuffle_association_rules_4.csv')
+analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[2], min_sup=seven_suport, itemsets_path='./results/frequent_itemsets/wrong_basket_shuffle_itemsets_7.csv', rules_path='./results/association_rules/wrong_basket_shuffle_association_rules_7.csv')
+analyse_itemsets.perform_apriori_association(itemsets=shuffle_bask_pooled[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/wrong_basket_shuffle_itemsets_10.csv', rules_path='./results/association_rules/wrong_basket_shuffle_association_rules_10.csv')
+
+'''
+
     #pool these
     shuffle_bask_pooled = []
     for pool in range(1,11,3):

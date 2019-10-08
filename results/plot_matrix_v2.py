@@ -134,17 +134,17 @@ if __name__ == "__main__":
     Plot the shuffled basket data matrix
     """
 for pool in range(1,11,3):
-    itemspath = './results/frequent_itemsets/correct_basket_shuffle_itemsets_%d.csv' %pool
-    rulespath = './results/association_rules/correct_basket_shuffle_association_rules_%d.csv' %pool
+    itemspath = './results/frequent_itemsets/wrong_basket_shuffle_itemsets_%d.csv' %pool
+    rulespath = './results/association_rules/wrong_basket_shuffle_association_rules_%d.csv' %pool
 
     leverage_dict, antecedents, consequents, order, labels = create_leverage_dict(itemspath=itemspath, rulespath=rulespath)
 
     alphab_dict = reorder_od(leverage_dict, order)
 
-    alphab_outpath = './results/figures/v3/basket_shuffle/correct_basket_shuffle_association_matrix_alphabetical_%d.pdf' %pool
+    alphab_outpath = './results/figures/v3/basket_shuffle/wrong_basket_shuffle_association_matrix_alphabetical_%d.pdf' %pool
     lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath=alphab_outpath) 
 
-    dendro_outpath = './results/figures/v3/basket_shuffle/correct_basket_shuffle_dendrogram_%d.pdf' %pool
+    dendro_outpath = './results/figures/v3/basket_shuffle/wrong_basket_shuffle_dendrogram_%d.pdf' %pool
     clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath=dendro_outpath)
 
     cluster_ants = []
@@ -159,5 +159,5 @@ for pool in range(1,11,3):
     cluster_tuples = list(zip(cluster_ants, cluster_cons))
 
     cluster_dict = reorder_od(leverage_dict, cluster_tuples)
-    cluster_outpath = './results/figures/v3/basket_shuffle/correct_basket_shuffle_association_matrix_clustered_%d.pdf' %pool
+    cluster_outpath = './results/figures/v3/basket_shuffle/wrong_basket_shuffle_association_matrix_clustered_%d.pdf' %pool
     cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)
