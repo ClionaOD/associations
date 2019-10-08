@@ -133,32 +133,31 @@ if __name__ == "__main__":
     """
     Plot the shuffled basket data matrix
     """
-    for pool in range(1,11,3):
-        pool = 1
-        itemspath = './results/frequent_itemsets/basket_shuffle_itemsets_%d.csv' %pool
-        rulespath = './results/association_rules/basket_shuffle_association_rules_%d.csv' %pool
+for pool in range(1,11,3):
+    itemspath = './results/frequent_itemsets/correct_basket_shuffle_itemsets_%d.csv' %pool
+    rulespath = './results/association_rules/correct_basket_shuffle_association_rules_%d.csv' %pool
 
-        leverage_dict, antecedents, consequents, order, labels = create_leverage_dict(itemspath=itemspath, rulespath=rulespath)
+    leverage_dict, antecedents, consequents, order, labels = create_leverage_dict(itemspath=itemspath, rulespath=rulespath)
 
-        alphab_dict = reorder_od(leverage_dict, order)
+    alphab_dict = reorder_od(leverage_dict, order)
 
-        alphab_outpath = './results/figures/v3/basket_shuffle/basket_shuffle_association_matrix_alphabetical_%d.pdf' %pool
-        lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath=alphab_outpath) 
+    alphab_outpath = './results/figures/v3/basket_shuffle/correct_basket_shuffle_association_matrix_alphabetical_%d.pdf' %pool
+    lev_df, lev_array = create_matrix(lev_dict=alphab_dict, series1=antecedents, series2=consequents, reind_order=labels, outpath=alphab_outpath) 
 
-        dendro_outpath = './results/figures/v3/basket_shuffle/basket_shuffle_dendrogram_%d.pdf' %pool
-        clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath=dendro_outpath)
+    dendro_outpath = './results/figures/v3/basket_shuffle/correct_basket_shuffle_dendrogram_%d.pdf' %pool
+    clusters = hierarchical_clustering(matrix=lev_array, label_list=labels, outpath=dendro_outpath)
 
-        cluster_ants = []
-        for x in clusters:
-            for i in range(len(clusters)):
-                cluster_ants.append(x)
+    cluster_ants = []
+    for x in clusters:
+        for i in range(len(clusters)):
+            cluster_ants.append(x)
 
-        cluster_cons = []
-        for i in range(0, len(clusters)):
-            cluster_cons.extend(clusters)
+    cluster_cons = []
+    for i in range(0, len(clusters)):
+        cluster_cons.extend(clusters)
 
-        cluster_tuples = list(zip(cluster_ants, cluster_cons))
+    cluster_tuples = list(zip(cluster_ants, cluster_cons))
 
-        cluster_dict = reorder_od(leverage_dict, cluster_tuples)
-        cluster_outpath = './results/figures/v3/basket_shuffle/basket_shuffle_association_matrix_clustered_%d.pdf' %pool
-        cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)
+    cluster_dict = reorder_od(leverage_dict, cluster_tuples)
+    cluster_outpath = './results/figures/v3/basket_shuffle/correct_basket_shuffle_association_matrix_clustered_%d.pdf' %pool
+    cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)
