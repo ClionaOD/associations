@@ -2,6 +2,29 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+def read_itemsets(itemspath):
+    itemsets = pd.read_csv(itemspath, sep=',')
+    itemsets = itemsets['itemsets'].tolist()
+    itemsets = [i[12:-3] for i in itemsets]
+    itemsets = [i for i in itemsets if not "', '" in i]
+    return itemsets
+
+one = read_itemsets('./results/frequent_itemsets/itemsets_1.csv')
+four = read_itemsets('./results/frequent_itemsets/itemsets_4.csv')
+seven = read_itemsets('./results/frequent_itemsets/itemsets_7.csv')
+ten = read_itemsets('./results/frequent_itemsets/itemsets_10.csv')
+
+a = [i for i in seven if not i in ten]
+b = [i for i in seven if not i in one]
+c = [i for i in seven if not i in four]
+
+#one is a subset of all other three
+#four = one + Bed, Grass, Meal, Military, Tuxedo
+#seven = four + computer, flooring
+#ten = seven + cafeteria, window - military
+
+
+
 """
 Plot the actual distribution for leverage first
 """
