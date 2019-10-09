@@ -30,11 +30,9 @@ support,itemsets
 0.17124900263917,frozenset({'Crypt'})
 0.259421837598969,frozenset({'Cushion'})
 0.387896642730007,frozenset({'Dating'})
-,
 0.170193334560854,frozenset({'Dining Table'})
 0.258820352298533,frozenset({'Display'})
 0.313587430184742,frozenset({'Door'})
-,
 0.280714417234395,frozenset({'Drink'})
 0.192674154544897,frozenset({'Dungeon'})
 0.467064383477567,frozenset({'Electronics'})
@@ -47,7 +45,6 @@ support,itemsets
 0.158092432332904,frozenset({'Flower'})
 0.357206162155527,frozenset({'Food'})
 0.197022034002332,frozenset({'Food Court'})
-,
 0.825561897747499,frozenset({'Furniture'})
 0.403171914319033,frozenset({'Girl'})
 0.225399864972688,frozenset({'Glass'})
@@ -75,7 +72,6 @@ support,itemsets
 0.797451666359786,frozenset({'Man'})
 0.134364450991223,frozenset({'Meal'})
 0.13345363039342,frozenset({'Military'})
-,
 0.258820352298533,frozenset({'Monitor'})
 0.282455042042595,frozenset({'Musical Instrument'})
 0.225343399005708,frozenset({'Musician'})
@@ -86,7 +82,6 @@ support,itemsets
 0.208371693365249,frozenset({'Pants'})
 0.214118946786964,frozenset({'Pedestrian'})
 0.721620327748113,frozenset({'People'})
-,
 0.386067636408273,frozenset({'Performer'})
 1,frozenset({'Person'})
 0.657882526238262,frozenset({'Photo'})
@@ -107,7 +102,6 @@ support,itemsets
 0.177637022034002,frozenset({'Skin'})
 0.268154422144479,frozenset({'Sleeve'})
 0.146971091879948,frozenset({'Smile'})
-,
 0.160959921438655,frozenset({'Sport'})
 0.160959921438655,frozenset({'Sports'})
 0.593943411280918,frozenset({'Suit'})

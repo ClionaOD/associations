@@ -145,7 +145,7 @@ if __name__ == "__main__":
     Plot the shuffled data matrix
     """
     for pool in range(1,11,3):
-        pool = 10
+        pool = 4
         itemspath = './results/frequent_itemsets/basket_shuffle_itemsets_%d.csv' %pool
         rulespath = './results/association_rules/basket_shuffle_association_rules_%d.csv' %pool
 
