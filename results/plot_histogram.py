@@ -14,9 +14,23 @@ four = read_itemsets('./results/frequent_itemsets/itemsets_4.csv')
 seven = read_itemsets('./results/frequent_itemsets/itemsets_7.csv')
 ten = read_itemsets('./results/frequent_itemsets/itemsets_10.csv')
 
-a = [i for i in seven if not i in ten]
-b = [i for i in seven if not i in one]
-c = [i for i in seven if not i in four]
+bask_one = read_itemsets('./results/frequent_itemsets/basket_shuffle_itemsets_1.csv')
+bask_four = read_itemsets('./results/frequent_itemsets/basket_shuffle_itemsets_4.csv')
+bask_seven = read_itemsets('./results/frequent_itemsets/basket_shuffle_itemsets_7.csv')
+bask_ten = read_itemsets('./results/frequent_itemsets/basket_shuffle_itemsets_10.csv')
+
+items_one = read_itemsets('./results/frequent_itemsets/item_shuffle_itemsets_1.csv')
+items_four = read_itemsets('./results/frequent_itemsets/item_shuffle_itemsets_4.csv')
+items_seven = read_itemsets('./results/frequent_itemsets/item_shuffle_itemsets_7.csv')
+items_ten = read_itemsets('./results/frequent_itemsets/item_shuffle_itemsets_10.csv')
+
+
+a = [i for i in four if not i in items_four]
+b = [i for i in four if not i in bask_four]
+c = [i for i in items_four if not i in four]
+d = [i for i in bask_four if not i in four]
+
+#items_four/bask_four = four + Cafeteria Window 
 
 #one is a subset of all other three
 #four = one + Bed, Grass, Meal, Military, Tuxedo
