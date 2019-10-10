@@ -130,6 +130,7 @@ if __name__ == "__main__":
     cluster_outpath = './results/figures/v3/association_matrix_clustered_%d.pdf' %pool
     cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)
 
+    
     for pool in range(4,11,3):
         itemspath = './results/frequent_itemsets/itemsets_%d.csv' %pool
         rulespath = './results/association_rules/association_rules_%d.csv' %pool
@@ -145,13 +146,12 @@ if __name__ == "__main__":
     Plot the shuffled data matrix
     """
     for pool in range(1,11,3):
-        pool = 4
-        itemspath = './results/frequent_itemsets/basket_shuffle_itemsets_%d.csv' %pool
-        rulespath = './results/association_rules/basket_shuffle_association_rules_%d.csv' %pool
+        itemspath = './results/frequent_itemsets/item_shuffle_itemsets_%d.csv' %pool
+        rulespath = './results/association_rules/item_shuffle_association_rules_%d.csv' %pool
 
         leverage_dict, antecedents, consequents, order, labels = create_leverage_dict(itemspath=itemspath, rulespath=rulespath)
 
         cluster_dict = reorder_od(leverage_dict, cluster_tuples)
 
-        cluster_outpath = './results/figures/v3/basket_shuffle/basket_shuffle_association_matrix_clustered_%d.pdf' %pool
+        cluster_outpath = './results/figures/v3/item_shuffle/item_shuffle_association_matrix_clustered_%d.pdf' %pool
         cluster_df, cluster_array = create_matrix(lev_dict=cluster_dict, series1=cluster_ants, series2=cluster_cons, reind_order=clusters, outpath=cluster_outpath)
