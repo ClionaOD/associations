@@ -6,7 +6,7 @@ shuffling the temporal order of the baskets.
 import pickle
 import copy
 import random
-import analyse_itemsets
+import get_frequent_items as freq
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
@@ -14,7 +14,7 @@ from mlxtend.frequent_patterns import association_rules
 
 def shuffle_items(lst):
     """
-    Randomly shuffle items between baskets 1 million times, ensuring no repetition of an item in a basket.
+    Randomly shuffle items between baskets 100 million times, ensuring no repetition of an item in a basket.
     lst: the itemsets, either pooled or not.
     """
     count = 0
@@ -42,45 +42,39 @@ def shuffle_baskets(lst):
         count += 1
     return _
 
+def get_matrix(lst,X):
+    
+    one_hot_items = freq.one_hot(lst)
+    single_counts, mapping = freq.most_frequent_items(one_hot_items, X)
+    lev_array = freq.create_leverage_matrix(lst, single_counts, mapping)
+    lev_df = freq.order_matrix(lev_array, mapping, X)
+    return lev_df
+
 if __name__ == "__main__":
     
     with open('itemsets.pickle', 'rb') as f:
         itemsets = pickle.load(f)
-    print('There are {} baskets in total for basket shuffling'.format(len(itemsets)))
+    print('There are {} baskets'.format(len(itemsets)))
 
-    one_support = 0.021
-    four_support = 0.075
-    seven_support = 0.12
-    ten_support = 0.163
+    X = 150
 
-    #This is the control for order of baskets with same contents of items
-    pooled_first = []
-    for pool in range(1,11,3):
-        a = analyse_itemsets.pool_baskets(itemsets, pool)
-        pooled_first.append(a)
-    for i in pooled_first:
-        i = shuffle_baskets(i) 
-    analyse_itemsets.perform_apriori_association(itemsets=pooled_first[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/wrong_basket_shuffle_itemsets_10.csv', rules_path='./results/association_rules/wrong_basket_shuffle_association_rules_10.csv')
-
-    #this is for pooling having already shuffled, i.e. temporal info is lost from 200 ms to 2000 ms
+    #shuffle each 200 ms basket and then pool across baskets
     shuffled = shuffle_baskets(itemsets)
-    shuffled_first = []
+    shuffle_pooled = []
     for pool in range(1,11,3):
-        b = analyse_itemsets.pool_baskets(shuffled, pool)
-        shuffled_first.append(b)
-    analyse_itemsets.perform_apriori_association(itemsets=shuffled_first[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/basket_shuffle_itemsets_10.csv', rules_path='./results/association_rules/basket_shuffle_association_rules_10.csv')
+        a = freq.pool_baskets(shuffled, pool)
+        shuffle_pooled.append(a)
 
-    a = shuffle_items(itemsets)
-
-one_support = 0.021
-four_support = 0.075
-seven_support = 0.12
-ten_support = 0.163
-items_shuffled = []
-for pool in range(1,11,3):
-    b = analyse_itemsets.pool_baskets(a, pool)
-    items_shuffled.append(b)
-analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[0], min_sup=one_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_1.csv', rules_path='./results/association_rules/item_shuffle_association_rules_1.csv')
-analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[1], min_sup=four_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_4.csv', rules_path='./results/association_rules/item_shuffle_association_rules_4.csv')
-analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[2], min_sup=seven_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_7.csv', rules_path='./results/association_rules/item_shuffle_association_rules_7.csv')
-analyse_itemsets.perform_apriori_association(itemsets=items_shuffled[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/item_shuffle_itemsets_10.csv', rules_path='./results/association_rules/item_shuffle_association_rules_10.csv')
+    for i in range(4):
+        outpath = './results/figures/v4/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
+        freq.plot_matrix(get_matrix(shuffle_pooled[i], outpath), X)
+    
+    items_shuffled = shuffle_items(itemsets)
+    pooled = []
+    for pool in range(1,11,3):
+        a = freq.pool_baskets(items_shuffled, pool)
+        pooled.append(a)
+    
+    for i in range(4):
+        outpath = './results/figures/v4/item_shuffle_leverage_matrix_{}.pdf'.format(i)
+        freq.plot_matrix(get_matrix(pooled[i], outpath), X)
