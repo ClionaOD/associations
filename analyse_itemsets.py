@@ -113,8 +113,10 @@ if __name__ == "__main__":
     count = 0 
     for basket in itemsets:
         count += len(basket)
+    print('The total number of baskets is {}'.format(len(itemsets)))
     print("The total number of labels is {}".format(count))
 
+"""
     #pool baskets into latency 200 ms, 800 ms, 700 ms, 2000 ms)
     pooled = []
     for pool in range(1,11,3):

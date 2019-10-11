@@ -124,13 +124,6 @@ if __name__ == "__main__":
 
     X = 150
 
-    one_hot_items = one_hot(itemsets)
-    single_counts, mapping = most_frequent_items(one_hot_items, X)
-    lev_array = create_leverage_matrix(itemsets, single_counts, mapping)
-    lev_df = order_matrix(lev_array, mapping, X)
-    outpath = './results/figures/v4/leverage_matrix_1.pdf'
-    plot_matrix(lev_df, outpath)
-
     for i in range(4):
         one_hot_items = one_hot(pooled[i])
         single_counts, mapping = most_frequent_items(one_hot_items, X)
