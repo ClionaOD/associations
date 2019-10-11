@@ -26,3 +26,10 @@ encode_probs_one = {item_to_number.get(k, k): v for k, v in probs_one.items()}
 
 prob_one_df = pd.DataFrame.from_dict(encode_probs_one, orient='index')
 prob_one_array = df.to_numpy
+
+pair_counts = np.zeros((150,150))
+
+for basket in itemsets:
+    for idx, x in enumerate(itemsets[0][:-1]):
+        print(idx,x)
+

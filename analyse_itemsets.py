@@ -134,3 +134,5 @@ if __name__ == "__main__":
     perform_apriori_association(itemsets=pooled[3], min_sup=ten_support, itemsets_path='./results/frequent_itemsets/itemsets_10.csv', rules_path='./results/association_rules/association_rules_10.csv')
 
     
+
+    
