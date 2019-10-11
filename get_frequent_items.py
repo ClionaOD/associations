@@ -5,6 +5,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from mlxtend.preprocessing import TransactionEncoder
+from nltk.corpus import wordnet as wn
+from scipy.cluster.hierarchy import dendrogram, linkage
+from itertools import combinations
 
 def one_hot(lst): 
     """one hot encode lst, a list of lists"""
@@ -34,6 +37,40 @@ def most_frequent_items(one_hot_df, X=150):
     mapping = {k:v for v,k in enumerate(keys)}
 
     return single_counts, mapping
+
+def lch_order(items,names_dict,syn_dict):
+    ## get LCH distance for the images from the respective synsets and order them by hierarchical clustering + get respective (comprehensible) labels 
+    synsets_list = []
+    for item in items:
+        syn = wn.synset(item[1])
+        #print syn.definition()
+        synsets_list.append(syn)
+
+    cmb = list(combinations(synsets_list,2))
+    lch_list = []
+    x = []
+    y = []
+    for item in cmb:
+        x.append(item[0])
+        y.append(item[1])
+        lch = item[0].lch_similarity(item[1])
+        lch_list.append(lch)
+
+    x = np.array(x,dtype = str)
+    y = np.array(y, dtype = str)
+    lch_list = np.array(lch_list,dtype = float)
+    lch_matrix = np.stack((x,y,lch_list),axis = 1)
+    Z = linkage(lch_matrix[:,2], 'ward')
+
+    den = dendrogram(Z,
+                orientation='top',
+                labels=items,
+                leaf_font_size=9,
+                distance_sort='descending',
+                show_leaf_counts=True)
+            
+    orderedNames = den['ivl']
+    return orderedNames
 
 def pool_baskets(inlist, multiply_frames=1):
     """

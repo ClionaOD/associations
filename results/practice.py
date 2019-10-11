@@ -1,4 +1,4 @@
-import pandas
+import pandas as pd
 
 ser2 =pd.Series([1,0,2,2,0])
 ser3 = pd.Series([1,1,0,0,3])
@@ -82,4 +82,8 @@ basket_shuffled = shuffle_baskets(pooled)
 print(pooled)
 print(items_shuffled)
 print(basket_shuffled)
+
+"""From here is for LCH ordering """
+from nltk.corpus import wordnet as wn
+from scipy.cluster.hierarchy import dendrogram, linkage
 
