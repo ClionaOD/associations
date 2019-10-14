@@ -5,6 +5,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from mlxtend.preprocessing import TransactionEncoder
+import nltk
+nltk.download('wordnet')
 from nltk.corpus import wordnet as wn
 from scipy.cluster.hierarchy import dendrogram, linkage
 from itertools import combinations
@@ -31,20 +33,28 @@ def most_frequent_items(one_hot_df, X=150):
     mapping, a dict with the numeric values of each unique item 
     """
     one_hot_counts = one_hot_df.sum(axis=0, skipna=True)
-    top_150 = one_hot_counts.nlargest(X, keep='all')
-    single_counts = top_150.to_dict()
+    _ = one_hot_counts.to_dict()
+    wn_counts = {item : freq for item, freq in _.items()if len(wn.synsets(item, pos='n')) != 0}
+    wn_counts = pd.DataFrame.from_dict(wn_counts, orient='index')
+
+    top_x = wn_counts.nlargest(X, columns=0, keep='all') 
+    single_counts = top_x[0].to_dict()
     keys = list(single_counts.keys())
     mapping = {k:v for v,k in enumerate(keys)}
 
     return single_counts, mapping
 
-def lch_order(items,names_dict,syn_dict):
+def lch_order(items_dict, synset_mapping):
     ## get LCH distance for the images from the respective synsets and order them by hierarchical clustering + get respective (comprehensible) labels 
+    items_dict = single_counts
+    synset_mapping = item_synsets
+
+    items = list(items_dict.keys())
     synsets_list = []
-    for item in items:
-        syn = wn.synset(item[1])
-        #print syn.definition()
+    for k in items:
+        syn = synset_mapping[k]
         synsets_list.append(syn)
+    synsets_list = [wn.synset(i) for i in synsets_list]
 
     cmb = list(combinations(synsets_list,2))
     lch_list = []
@@ -59,7 +69,7 @@ def lch_order(items,names_dict,syn_dict):
     x = np.array(x,dtype = str)
     y = np.array(y, dtype = str)
     lch_list = np.array(lch_list,dtype = float)
-    lch_matrix = np.stack((x,y,lch_list),axis = 1)
+    lch_matrix = np.stack((x,y,1./lch_list),axis = 1)
     Z = linkage(lch_matrix[:,2], 'ward')
 
     den = dendrogram(Z,
@@ -68,6 +78,7 @@ def lch_order(items,names_dict,syn_dict):
                 leaf_font_size=9,
                 distance_sort='descending',
                 show_leaf_counts=True)
+    plt.show()
             
     orderedNames = den['ivl']
     return orderedNames
@@ -151,6 +162,14 @@ if __name__ == "__main__":
 
     with open('itemsets.pickle', 'rb') as f:
         itemsets = pickle.load(f)
+    
+    with open('item_synsets.pickle', 'rb') as f:
+        item_synsets = pickle.load(f)
+
+    X = 150
+    one_hot_items = one_hot(itemsets)
+    single_counts, mapping = most_frequent_items(one_hot_items, X)
+    lch_order = lch_order(single_counts)
 
     #pool baskets into latency 200 ms, 800 ms, 700 ms, 2000 ms)
     pooled = []
@@ -168,5 +187,3 @@ if __name__ == "__main__":
         lev_df = order_matrix(lev_array, mapping, X)
         outpath = './results/figures/v4/leverage_matrix_{}.pdf'.format(i)
         plot_matrix(lev_df, outpath)
-
-    
