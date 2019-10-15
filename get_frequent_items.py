@@ -44,11 +44,8 @@ def most_frequent_items(one_hot_df, X=150):
 
     return single_counts, mapping
 
-def lch_order(items_dict, synset_mapping):
+def lch_order(items_dict, synset_mapping, outpath):
     ## get LCH distance for the images from the respective synsets and order them by hierarchical clustering + get respective (comprehensible) labels 
-    items_dict = single_counts
-    synset_mapping = item_synsets
-
     items = list(items_dict.keys())
     synsets_list = []
     for k in items:
@@ -69,16 +66,17 @@ def lch_order(items_dict, synset_mapping):
     x = np.array(x,dtype = str)
     y = np.array(y, dtype = str)
     lch_list = np.array(lch_list,dtype = float)
-    lch_matrix = np.stack((x,y,1./lch_list),axis = 1)
+    lch_matrix = np.stack((x,y,lch_list),axis = 1)
     Z = linkage(lch_matrix[:,2], 'ward')
 
+    plt.figure()
     den = dendrogram(Z,
                 orientation='top',
                 labels=items,
                 leaf_font_size=9,
                 distance_sort='descending',
                 show_leaf_counts=True)
-    plt.show()
+    plt.savefig(outpath)
             
     orderedNames = den['ivl']
     return orderedNames
@@ -169,7 +167,11 @@ if __name__ == "__main__":
     X = 150
     one_hot_items = one_hot(itemsets)
     single_counts, mapping = most_frequent_items(one_hot_items, X)
-    lch_order = lch_order(single_counts)
+    lch_order = lch_order(single_counts, synset_mapping=item_synsets, outpath='./results/figures/v4/dendrogram.pdf')
+    lev_array = create_leverage_matrix(itemsets, lch_order, mapping)
+    lev_df = order_matrix(lev_array, mapping, X)
+    outpath = './results/figures/v4/leverage_matrix_1.pdf'
+    plot_matrix(lev_df, outpath)
 
     #pool baskets into latency 200 ms, 800 ms, 700 ms, 2000 ms)
     pooled = []
@@ -177,8 +179,6 @@ if __name__ == "__main__":
         pooled_itemsets = pool_baskets(itemsets, pool)
         pooled.append(pooled_itemsets)
         print('For the {} group there are {} number of baskets'.format(pool,len(pooled_itemsets)))
-
-    X = 150
 
     for i in range(4):
         one_hot_items = one_hot(pooled[i])
