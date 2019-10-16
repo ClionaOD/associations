@@ -45,10 +45,8 @@ def most_frequent_items(one_hot_df, X=150):
 
     return single_counts, mapping
 
-def lch_order(items_dict, synset_mapping, outpath):
+def lch_order(items_dict, synset_mapping, matrix_outpath, dend_outpath):
     ## get LCH distance for the images from the respective synsets and order them by hierarchical clustering + get respective (comprehensible) labels 
-    items_dict = single_counts
-    synset_mapping = item_synsets
 
     items = list(items_dict.keys())
     synsets_list = []
@@ -70,29 +68,30 @@ def lch_order(items_dict, synset_mapping, outpath):
     x = np.array(x,dtype = str)
     y = np.array(y, dtype = str)
     lch_list = np.array(lch_list,dtype = float)
-    lch_matrix = np.stack((x,y,lch_list),axis = 1)
-    Z = linkage(lch_matrix[:,2], 'ward')
-
-    den = dendrogram(Z,
-                orientation='top',
-                labels=items,
-                leaf_font_size=5,
-                distance_sort='descending',
-                show_leaf_counts=True)
-    plt.savefig(outpath)
 
     lch_matrix = squareform(lch_list)
     d = synsets_list[0].lch_similarity(synsets_list[0])
     np.fill_diagonal(lch_matrix, d)
-    df = pd.DataFrame(data=lch_matrix, index=items, columns=items)
 
-    a = []
-    for i in range(0,len(synsets_list)):
-        x = synsets_list[i].lch_similarity(synsets_list[i])
-        a.append(x)
+    arr = lch_matrix - lch_matrix.mean(axis=0)
+    arr = arr / np.abs(arr).max(axis=0)
 
-            
-    orderedNames = den['ivl']
+    fig,ax = plt.subplots(figsize=(10,10))
+    dend = dendrogram(linkage(arr, method='ward'), ax=ax, labels=items)
+    ax.tick_params(axis='x', labelsize=4)
+    plt.savefig(dend_outpath)
+    plt.close()
+
+    orderedNames = dend['ivl']
+
+    df = pd.DataFrame(data=arr, index=items, columns=items)
+    df = df.reindex(orderedNames, columns=orderedNames)   
+    cmap = sns.cm.rocket_r 
+    fig, ax = plt.subplots(figsize=(20,20))
+    sns.heatmap(df, ax=ax)
+    plt.savefig(matrix_outpath)
+    plt.close()
+
     return orderedNames
 
 def pool_baskets(inlist, multiply_frames=1):
@@ -147,28 +146,31 @@ def create_leverage_matrix(itemsets, counts_dict, mapping):
         for idx, x in enumerate(basket[:-1]):
             for y in basket[idx+1 :]:
                 pair_counts[x,y] += 1
-    
+
     pair_probs = pair_counts/len(itemsets)
     pair_probs = pair_probs + np.transpose(pair_probs)
 
     #leverage = conditional probability - independent probability
     leverage = pair_probs - (np.matmul(single_probs_array, single_probs_array.T))
-    leverage = leverage.clip(min=0)
+    np.fill_diagonal(leverage, 1)
 
     return leverage
 
-def order_matrix(array, mapping, X):
-    reverse_mapping = collections.OrderedDict({v:k for k,v in mapping.items()})
-    order = list(range(X))
-    reverse_mapping = reorder_od(reverse_mapping, order)
-    matrix_order = list(reverse_mapping.values())
+def order_matrix(array, mapping, lch_order):
+    lch_encoded = [mapping[k] for k in lch_order]
 
-    df = pd.DataFrame(array, index=matrix_order, columns=matrix_order)
+    df = pd.DataFrame(array)
+    df = df.reindex(lch_encoded, columns=lch_encoded)
+    df.columns = lch_order
+    df.index = lch_order
     return df
 
 def plot_matrix(df, outpath):
-    x = sns.clustermap(lev_df, vmin=0, vmax=0.1, center=0.05, figsize=(20,20), method='ward')
-    x.savefig(outpath)
+    cmap = sns.cm.rocket_r
+    fig, ax = plt.subplots(figsize=(20,20))
+    sns.heatmap(df, ax=ax, cmap=cmap)
+    plt.savefig(outpath)
+    plt.close()
 
 if __name__ == "__main__":
 
@@ -181,9 +183,9 @@ if __name__ == "__main__":
     X = 150
     one_hot_items = one_hot(itemsets)
     single_counts, mapping = most_frequent_items(one_hot_items, X)
-    lch_order = lch_order(single_counts, synset_mapping=item_synsets, outpath='./results/figures/v4/dendrogram.pdf')
-    lev_array = create_leverage_matrix(itemsets, lch_order, mapping)
-    lev_df = order_matrix(lev_array, mapping, X)
+    lch_order = lch_order(single_counts, synset_mapping=item_synsets, dend_outpath='./results/figures/v4/dendrogram.pdf', matrix_outpath='./results/figures/v4/lch_matrix.pdf')
+    lev_array = create_leverage_matrix(itemsets, single_counts, mapping)
+    lev_df = order_matrix(lev_array, mapping, lch_order)
     outpath = './results/figures/v4/leverage_matrix_1.pdf'
     plot_matrix(lev_df, outpath)
 
