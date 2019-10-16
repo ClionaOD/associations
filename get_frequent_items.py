@@ -9,6 +9,7 @@ import nltk
 nltk.download('wordnet')
 from nltk.corpus import wordnet as wn
 from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import squareform
 from itertools import combinations
 
 def one_hot(lst): 
@@ -46,6 +47,9 @@ def most_frequent_items(one_hot_df, X=150):
 
 def lch_order(items_dict, synset_mapping, outpath):
     ## get LCH distance for the images from the respective synsets and order them by hierarchical clustering + get respective (comprehensible) labels 
+    items_dict = single_counts
+    synset_mapping = item_synsets
+
     items = list(items_dict.keys())
     synsets_list = []
     for k in items:
@@ -69,14 +73,24 @@ def lch_order(items_dict, synset_mapping, outpath):
     lch_matrix = np.stack((x,y,lch_list),axis = 1)
     Z = linkage(lch_matrix[:,2], 'ward')
 
-    plt.figure()
     den = dendrogram(Z,
                 orientation='top',
                 labels=items,
-                leaf_font_size=9,
+                leaf_font_size=5,
                 distance_sort='descending',
                 show_leaf_counts=True)
     plt.savefig(outpath)
+
+    lch_matrix = squareform(lch_list)
+    d = synsets_list[0].lch_similarity(synsets_list[0])
+    np.fill_diagonal(lch_matrix, d)
+    df = pd.DataFrame(data=lch_matrix, index=items, columns=items)
+
+    a = []
+    for i in range(0,len(synsets_list)):
+        x = synsets_list[i].lch_similarity(synsets_list[i])
+        a.append(x)
+
             
     orderedNames = den['ivl']
     return orderedNames
