@@ -9,7 +9,10 @@ nltk.download('wordnet')
 from nltk.corpus import wordnet as wn
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
+from scipy.spatial.distance import pdist
 from itertools import combinations
+from gensim.models import KeyedVectors
+model = KeyedVectors.load_word2vec_format('/home/CUSACKLAB/clionaodoherty/GoogleNews-vectors-negative300.bin', binary=True, limit=500000)
 
 def one_hot(lst): 
     """one hot encode lst, a list of lists"""
@@ -29,7 +32,7 @@ def most_frequent_items(one_hot_df, X=150):
     """
     one_hot_counts = one_hot_df.sum(axis=0, skipna=True)
     _ = one_hot_counts.to_dict()
-    wn_counts = {item : freq for item, freq in _.items()if len(wn.synsets(item, pos='n')) != 0}
+    wn_counts = {item : freq for item, freq in _.items() if len(wn.synsets(item, pos='n')) != 0 and item in model.vocab}
     wn_counts = pd.DataFrame.from_dict(wn_counts, orient='index')
 
     top_x = wn_counts.nlargest(X, columns=0, keep='all') 
@@ -47,7 +50,7 @@ def pooled_frequent_items(one_hot_df, counts_dict):
     pooled_counts = {item: freq for item, freq in _.items() if item in items}
     return pooled_counts
 
-def get_lch_order(items_dict, synset_mapping, matrix_outpath, dend_outpath):
+def get_lch_order(items_dict, synset_mapping):
     """ 
     get LCH distance for most frequent items and order them by hierarchical clustering, returning the order of labels 
     items_dict: dictionary with keys top X most frequent items and values their frequency
@@ -80,7 +83,21 @@ def get_lch_order(items_dict, synset_mapping, matrix_outpath, dend_outpath):
     lch_matrix = squareform(lch_list)
     d = synsets_list[0].lch_similarity(synsets_list[0])
     np.fill_diagonal(lch_matrix, d)
+    lch_df = pd.DataFrame(data=lch_matrix, index=items, columns=items)
 
+    Z = linkage(lch_matrix, 'ward')
+    den = dendrogram(Z,
+        orientation='top',
+        labels=items,
+        leaf_font_size=9,
+        distance_sort='ascending',
+        show_leaf_counts=True)
+    #plt.show()
+    orderedNames = den['ivl']
+
+    return orderedNames, lch_df
+
+"""
     arr = lch_matrix - lch_matrix.mean(axis=0)
     arr = arr / np.abs(arr).max(axis=0)
 
@@ -101,6 +118,36 @@ def get_lch_order(items_dict, synset_mapping, matrix_outpath, dend_outpath):
     plt.close()
 
     return orderedNames
+"""
+"""
+def visualise_rdm(matrix, order, outpath):
+    """ """
+    matrix: a squareform X*X matrix
+    order: the list of labels to order by according to hierarchical clustering
+    """ """
+    df = pd.DataFrame(data=matrix, index)
+"""
+
+def get_w2v_order(freq_items_dict):
+    w2v = []
+    items = list(freq_items_dict.keys())
+    for item in items:
+        w2v.append(model[item])
+
+    w2v = np.array(w2v,dtype = float)
+    rdm_w2v = squareform(pdist(w2v,metric='correlation'))
+    w2v_df = pd.DataFrame(data=rdm_w2v, index=items, columns=items) 
+    Z = linkage(squareform(rdm_w2v), 'ward')
+
+    den = dendrogram(Z,
+        orientation='top',
+        labels=list(freq_items_dict.keys()),
+        leaf_font_size=9,
+        distance_sort='ascending',
+        show_leaf_counts=True)
+    orderedNames = den['ivl']
+
+    return w2v_df, orderedNames
 
 def create_leverage_matrix(itemsets, counts_dict, mapping):
     """
@@ -134,7 +181,12 @@ def create_leverage_matrix(itemsets, counts_dict, mapping):
 
     return leverage
 
-def order_matrix(array, mapping, lch_order):
+def decode_matrix(array, items_dict, mapping, lch_order):
+    """
+    array: the X * X symmetric matrix (default X=150 i.e. most frequent items)
+    items_dict: the items and their counts
+    """
+
     lch_encoded = [mapping[k] for k in lch_order]
 
     df = pd.DataFrame(array)
@@ -143,7 +195,9 @@ def order_matrix(array, mapping, lch_order):
     df.index = lch_order
     return df
 
-def plot_matrix(df, outpath):
+def plot_matrix(df, order, outpath):
+    df = df.reindex(order, columns=order)
+
     cmap = plt.cm.coolwarm
     fig, ax = plt.subplots(figsize=(20,20))
     sns.heatmap(df, ax=ax, cmap=cmap)
@@ -192,12 +246,16 @@ if __name__ == "__main__":
         item_synsets = pickle.load(f)
 
     X = 150
-    
+
     one_hot_items = one_hot(itemsets)
     single_counts, mapping = most_frequent_items(one_hot_items, X)
     
-    lch_order = get_lch_order(single_counts, synset_mapping=item_synsets, dend_outpath='./results/figures/v4/dendrogram.pdf', matrix_outpath='./results/figures/v4/lch_matrix.pdf')
+    lch_order, lch_df = get_lch_order(single_counts, synset_mapping=item_synsets)
+    w2v_df, w2v_order = get_w2v_order(single_counts)
     
+    plot_matrix(lch_df, lch_order, outpath='./results/figures/lch_matrix.pdf')
+    plot_matrix(w2v_df, w2v_order, outpath='./results/figures/w2v_matrix_orderedw2v.pdf')
+
     lev_array = create_leverage_matrix(itemsets, single_counts, mapping)
     lev_df = order_matrix(lev_array, mapping, lch_order)
     outpath = './results/figures/v4/leverage_matrix_1.pdf'
@@ -217,3 +275,5 @@ if __name__ == "__main__":
         lev_df = order_matrix(lev_array, mapping, lch_order)
         outpath = './results/figures/v4/leverage_matrix_poolidx{}.pdf'.format(i)
         plot_matrix(lev_df, outpath)
+
+    
