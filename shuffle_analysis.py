@@ -8,9 +8,6 @@ import copy
 import random
 import get_frequent_items as freq
 import pandas as pd
-from mlxtend.preprocessing import TransactionEncoder
-from mlxtend.frequent_patterns import apriori
-from mlxtend.frequent_patterns import association_rules
 
 def shuffle_items(lst):
     """
@@ -33,22 +30,20 @@ def shuffle_baskets(lst):
     """
     Shuffle the basket order rather than items within the baskets.
     """
-    _ = copy.deepcopy(lst)
     count = 0
     while count < 1000000:
-        idx = range(len(_))
+        idx = range(len(lst))
         i1, i2 = random.sample(idx, 2)
-        _[i1], _[i2] = _[i2], _[i1]
+        lst[i1], lst[i2] = lst[i2], lst[i1]
         count += 1
-    return _
+    return lst
 
-def get_matrix(lst,X):
-    
+def get_matrix(lst, counts_dict, mapping, order, X, realpth, controlpth):
     one_hot_items = freq.one_hot(lst)
-    single_counts, mapping = freq.most_frequent_items(one_hot_items, X)
-    lev_array = freq.create_leverage_matrix(lst, single_counts, mapping)
-    lev_df = freq.order_matrix(lev_array, mapping, X)
-    return lev_df
+    pool_count = freq.pooled_frequent_items(one_hot_items, counts_dict)
+    lev_df = freq.create_leverage_matrix(lst, pool_count, mapping)
+    freq.plot_matrix(lev_df, order, outpath=realpth)
+    freq.self_cluster(lev_df, controlpth)
 
 if __name__ == "__main__":
     
@@ -56,25 +51,38 @@ if __name__ == "__main__":
         itemsets = pickle.load(f)
     print('There are {} baskets'.format(len(itemsets)))
 
+    with open('single_counts.pickle', 'rb') as f:
+        counts = pickle.load(f)
+
+    with open('mapping.pickle', 'rb') as f:
+        maps = pickle.load(f)
+    
+    with open('lch_order.pickle', 'rb') as f:
+        order = pickle.load(f)
+
     X = 150
 
     #shuffle each 200 ms basket and then pool across baskets
-    shuffled = shuffle_baskets(itemsets)
     shuffle_pooled = []
-    for pool in range(1,11,3):
+    shuffled = shuffle_baskets(itemsets)
+    shuffle_pooled.append(shuffled)
+    for pool in range(4,11,3):
         a = freq.pool_baskets(shuffled, pool)
         shuffle_pooled.append(a)
 
     for i in range(4):
-        outpath = './results/figures/v4/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
-        freq.plot_matrix(get_matrix(shuffle_pooled[i], outpath), X)
+        realpath = './results/figures/shuffled/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
+        controlpath = './results/figures/shuffled/basket_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
+        get_matrix(shuffle_pooled[i], counts, maps, order, X, realpath, controlpath)
     
-    items_shuffled = shuffle_items(itemsets)
     pooled = []
-    for pool in range(1,11,3):
+    items_shuffled = shuffle_items(itemsets)
+    pooled.append(items_shuffled)
+    for pool in range(4,11,3):
         a = freq.pool_baskets(items_shuffled, pool)
         pooled.append(a)
     
     for i in range(4):
-        outpath = './results/figures/v4/item_shuffle_leverage_matrix_{}.pdf'.format(i)
-        freq.plot_matrix(get_matrix(pooled[i], outpath), X)
+        realpath = './results/figures/shuffled/item_shuffle_leverage_matrix_{}.pdf'.format(i)
+        controlpath = './results/figures/shuffled/item_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
+        get_matrix(pooled[i], counts, maps, order, X, realpath, controlpath)

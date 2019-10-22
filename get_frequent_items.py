@@ -229,9 +229,17 @@ if __name__ == "__main__":
 
     one_hot_items = one_hot(itemsets)
     single_counts, mapping = most_frequent_items(one_hot_items, X)
+
+    with open('single_counts.pickle', 'wb') as f:
+        pickle.dump(single_counts, f)
+    with open('mapping.pickle', 'wb') as f:
+        pickle.dump(mapping, f)
     
     lch_order, lch_df = get_lch_order(single_counts, synset_mapping=item_synsets)
     w2v_df, w2v_order = get_w2v_order(single_counts)
+
+    with open('lch_order.pickle', 'wb') as f:
+        pickle.dump(lch_order, f)
     
     plot_matrix(lch_df, lch_order, outpath='./results/figures/lch_matrix.pdf')
     plot_matrix(w2v_df, lch_order, outpath='./results/figures/w2v_matrix.pdf')
@@ -242,7 +250,7 @@ if __name__ == "__main__":
     plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_200.pdf')
     self_cluster(lev_df, './results/figures/leverage_matrix_200_levorder.pdf')
 
-    #pool baskets into latency 800 ms, 700 ms, 2000 ms)
+    #pool baskets into latency 800 ms, 1400 ms, 2000 ms)
     print('Begin pooling.')
     pooled = []
     for pool in range(4,11,3):
