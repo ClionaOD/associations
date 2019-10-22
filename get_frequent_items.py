@@ -43,6 +43,10 @@ def most_frequent_items(one_hot_df, X=150):
     return single_counts, mapping
 
 def pooled_frequent_items(one_hot_df, counts_dict):
+    """
+    one_hot_df: one hot encoded dataframe for the pooled baskets
+    counts_dict: the X most frequent items and their frequency in the 200 ms baskets
+    """
     items = list(counts_dict.keys())
     one_hot_counts = one_hot_df.sum(axis=0, skipna=True)
     _ = one_hot_counts.to_dict()
@@ -92,41 +96,10 @@ def get_lch_order(items_dict, synset_mapping):
         leaf_font_size=9,
         distance_sort='ascending',
         show_leaf_counts=True)
-    #plt.show()
+    plt.savefig('./results/figures/lch_dendrogram.pdf')
     orderedNames = den['ivl']
 
     return orderedNames, lch_df
-
-"""
-    arr = lch_matrix - lch_matrix.mean(axis=0)
-    arr = arr / np.abs(arr).max(axis=0)
-
-    fig,ax = plt.subplots(figsize=(10,10))
-    dend = dendrogram(linkage(arr, method='ward'), ax=ax, labels=items)
-    ax.tick_params(axis='x', labelsize=4)
-    plt.savefig(dend_outpath)
-    plt.close()
-
-    orderedNames = dend['ivl']
-
-    df = pd.DataFrame(data=arr, index=items, columns=items)
-    df = df.reindex(orderedNames, columns=orderedNames)   
-    cmap = plt.cm.coolwarm
-    fig, ax = plt.subplots(figsize=(20,20))
-    sns.heatmap(df, ax=ax, cmap=cmap)
-    plt.savefig(matrix_outpath)
-    plt.close()
-
-    return orderedNames
-"""
-"""
-def visualise_rdm(matrix, order, outpath):
-    """ """
-    matrix: a squareform X*X matrix
-    order: the list of labels to order by according to hierarchical clustering
-    """ """
-    df = pd.DataFrame(data=matrix, index)
-"""
 
 def get_w2v_order(freq_items_dict):
     w2v = []
@@ -145,6 +118,7 @@ def get_w2v_order(freq_items_dict):
         leaf_font_size=9,
         distance_sort='ascending',
         show_leaf_counts=True)
+    plt.savefig('./results/figures/w2v_dendrogram.pdf')
     orderedNames = den['ivl']
 
     return w2v_df, orderedNames
@@ -152,17 +126,22 @@ def get_w2v_order(freq_items_dict):
 def create_leverage_matrix(itemsets, counts_dict, mapping):
     """
     itemsets: list of baskets, either pooled or not
-    counts_dict: a dictionary of each of the most frequent items and their frequency
+    counts_dict: a dictionary of each of the most frequent items and their frequency 
+        --> if pooled then this is the dictionary returned from pooled_frequent_items()
     mapping: the integer value mapping for each of the frequent items
     """
+    items = list(counts_dict.keys())
+    encoded_items = [mapping[k] for k in items]
+
     #first create the X * 1 probability matrix
     single_probs = {k: v/len(itemsets) for k,v in counts_dict.items()}
     encoded = {mapping.get(k, k): v for k,v in single_probs.items()}
     single_probs_df = pd.DataFrame.from_dict(encoded, orient='index')
-    single_probs_array = single_probs_df.values
+    single_probs_df = single_probs_df.reindex(encoded_items)
+    #single_probs_array = single_probs_df.values
 
     #clean itemsets for efficiency
-    clipped_itemsets = [[i for i in basket if i in list(counts_dict.keys())] for basket in itemsets]
+    clipped_itemsets = [[i for i in basket if i in items] for basket in itemsets]
     encoded_itemsets = [[mapping[k] for k in basket] for basket in clipped_itemsets]
 
     #now create the X*X conditional probability matrix
@@ -175,25 +154,13 @@ def create_leverage_matrix(itemsets, counts_dict, mapping):
 
     pair_probs = pair_counts/len(itemsets)
     pair_probs = pair_probs + np.transpose(pair_probs)
+    pair_probs_df = pd.DataFrame(data=pair_probs, index=encoded_items, columns=encoded_items)
 
-    #leverage = conditional probability - independent probability
-    leverage = pair_probs - (np.matmul(single_probs_array, single_probs_array.T))
+    lev_df = pair_probs_df - (single_probs_df.dot(single_probs_df.T))
+    lev_df.index = items
+    lev_df.columns = items
 
-    return leverage
-
-def decode_matrix(array, items_dict, mapping, lch_order):
-    """
-    array: the X * X symmetric matrix (default X=150 i.e. most frequent items)
-    items_dict: the items and their counts
-    """
-
-    lch_encoded = [mapping[k] for k in lch_order]
-
-    df = pd.DataFrame(array)
-    df = df.reindex(lch_encoded, columns=lch_encoded)
-    df.columns = lch_order
-    df.index = lch_order
-    return df
+    return lev_df
 
 def plot_matrix(df, order, outpath):
     df = df.reindex(order, columns=order)
@@ -254,12 +221,11 @@ if __name__ == "__main__":
     w2v_df, w2v_order = get_w2v_order(single_counts)
     
     plot_matrix(lch_df, lch_order, outpath='./results/figures/lch_matrix.pdf')
+    plot_matrix(w2v_df, lch_order, outpath='./results/figures/w2v_matrix.pdf')
     plot_matrix(w2v_df, w2v_order, outpath='./results/figures/w2v_matrix_orderedw2v.pdf')
 
-    lev_array = create_leverage_matrix(itemsets, single_counts, mapping)
-    lev_df = order_matrix(lev_array, mapping, lch_order)
-    outpath = './results/figures/v4/leverage_matrix_1.pdf'
-    plot_matrix(lev_df, outpath)
+    lev_df = create_leverage_matrix(itemsets, single_counts, mapping)
+    plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_200.pdf')
 
     #pool baskets into latency 800 ms, 700 ms, 2000 ms)
     pooled = []
@@ -271,9 +237,7 @@ if __name__ == "__main__":
     for i in range(len(pooled)):
         one_hot_items = one_hot(pooled[i])
         pool_count = pooled_frequent_items(one_hot_items, single_counts)
-        lev_array = create_leverage_matrix(pooled[i], pool, mapping)
-        lev_df = order_matrix(lev_array, mapping, lch_order)
-        outpath = './results/figures/v4/leverage_matrix_poolidx{}.pdf'.format(i)
-        plot_matrix(lev_df, outpath)
+        lev_df = create_leverage_matrix(pooled[i], pool_count, mapping)
+        plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_{}.pdf'.format(i))
 
     
