@@ -204,6 +204,19 @@ def pool_baskets(inlist, multiply_frames=1):
         final_list.append(outlist2)
     return final_list
 
+def self_cluster(df,outpath):
+    link_array = df.values
+    link_array = np.fill_diagonal(link_array, 0)
+    Z = linkage(link_array, 'ward')
+    den = dendrogram(Z,
+        orientation='top',
+        labels=list(df.index),
+        leaf_font_size=9,
+        distance_sort='ascending',
+        show_leaf_counts=True)
+    orderedNames = den['ivl']
+    plot_matrix(df, orderedNames, outpath=outpath)
+
 if __name__ == "__main__":
 
     with open('itemsets.pickle', 'rb') as f:
@@ -223,11 +236,14 @@ if __name__ == "__main__":
     plot_matrix(lch_df, lch_order, outpath='./results/figures/lch_matrix.pdf')
     plot_matrix(w2v_df, lch_order, outpath='./results/figures/w2v_matrix.pdf')
     plot_matrix(w2v_df, w2v_order, outpath='./results/figures/w2v_matrix_orderedw2v.pdf')
+    print('Semantic measures complete.')
 
     lev_df = create_leverage_matrix(itemsets, single_counts, mapping)
     plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_200.pdf')
+    self_cluster(lev_df, './results/figures/leverage_matrix_200_levorder.pdf')
 
     #pool baskets into latency 800 ms, 700 ms, 2000 ms)
+    print('Begin pooling.')
     pooled = []
     for pool in range(4,11,3):
         pooled_itemsets = pool_baskets(itemsets, pool)
@@ -239,5 +255,14 @@ if __name__ == "__main__":
         pool_count = pooled_frequent_items(one_hot_items, single_counts)
         lev_df = create_leverage_matrix(pooled[i], pool_count, mapping)
         plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_{}.pdf'.format(i))
+        self_cluster(lev_df, './results/figures/leverage_matrix_{}_levorder.pdf'.format(i))
+
+    
+
+
+
+
+
+    
 
     
