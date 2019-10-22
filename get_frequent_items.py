@@ -206,7 +206,7 @@ def pool_baskets(inlist, multiply_frames=1):
 
 def self_cluster(df,outpath):
     link_array = df.values
-    link_array = np.fill_diagonal(link_array, 0)
+    np.fill_diagonal(link_array, 0)
     Z = linkage(link_array, 'ward')
     den = dendrogram(Z,
         orientation='top',
