@@ -87,7 +87,15 @@ def get_lch_order(items_dict, synset_mapping):
     lch_matrix = squareform(lch_list)
     d = synsets_list[0].lch_similarity(synsets_list[0])
     np.fill_diagonal(lch_matrix, d)
-    lch_df = pd.DataFrame(data=lch_matrix, index=items, columns=items)
+    
+    minimum, maximum = np.min(lch_matrix), np.max(lch_matrix)
+    new_min = -1
+    new_max = 1
+    m = (new_max - new_min) / (maximum - minimum)
+    b = new_min - m * minimum
+    lch_norm = m * lch_matrix + b
+    
+    lch_df = pd.DataFrame(data=lch_norm, index=items, columns=items)
 
     Z = linkage(lch_matrix, 'ward')
     den = dendrogram(Z,
@@ -167,7 +175,7 @@ def plot_matrix(df, order, outpath):
 
     cmap = plt.cm.coolwarm
     fig, ax = plt.subplots(figsize=(20,20))
-    sns.heatmap(df, ax=ax, cmap=cmap)
+    sns.heatmap(df, ax=ax, cmap=cmap, center=0, vmin=-1, vmax=1)
     plt.savefig(outpath)
     plt.close()
 
@@ -206,7 +214,7 @@ def pool_baskets(inlist, multiply_frames=1):
 
 def self_cluster(df,outpath):
     link_array = df.values
-    np.fill_diagonal(link_array, 0)
+    np.fill_diagonal(link_array, 1)
     Z = linkage(link_array, 'ward')
     den = dendrogram(Z,
         orientation='top',
@@ -241,7 +249,7 @@ if __name__ == "__main__":
     with open('lch_order.pickle', 'wb') as f:
         pickle.dump(lch_order, f)
     
-    plot_matrix(lch_df, lch_order, outpath='./results/figures/lch_matrix.pdf')
+    plot_matrix(lch_df, lch_order, outpath='./results/figures/lch_matrix_scaled.pdf')
     plot_matrix(w2v_df, lch_order, outpath='./results/figures/w2v_matrix.pdf')
     plot_matrix(w2v_df, w2v_order, outpath='./results/figures/w2v_matrix_orderedw2v.pdf')
     print('Semantic measures complete.')

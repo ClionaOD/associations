@@ -9,33 +9,32 @@ import random
 import get_frequent_items as freq
 import pandas as pd
 
-def shuffle_items(lst):
+def shuffle_items(lst, mapping):
     """
     Randomly shuffle items between baskets 100 million times, ensuring no repetition of an item in a basket.
     lst: the itemsets, either pooled or not.
+    mapping: index values for each item from freq
     """
+    encoded_lst = [[mapping[k] for k in bask] for bask in lst]
     count = 0
     while count < 100000000:
-        a = random.choice(lst)
-        b = random.choice(lst)
-        if not a == b:
-            rand_idx_a = random.randint(0, len(a)-1)
-            rand_idx_b = random.randint(0, len(b)-1)
-            if not a[rand_idx_a] in b:
-                a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
-                count += 1
-    return lst
+        a = random.choice(encoded_lst)
+        b = random.choice(encoded_lst)
+        rand_idx_a = random.randint(0, len(a)-1)
+        rand_idx_b = random.randint(0, len(b)-1)
+        if not a[rand_idx_a] in b and not b[rand_idx_b] in a:
+            a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
+            count += 1
+    return_strings = {v: k for k,v in mapping.items()}
+    new_lst = [[return_strings[k] for k in encoded_bask] for encoded_bask in encoded_lst]
+    return new_lst
 
 def shuffle_baskets(lst):
     """
     Shuffle the basket order rather than items within the baskets.
     """
-    count = 0
-    while count < 100000000:
-        idx = range(len(lst))
-        i1, i2 = random.sample(idx, 2)
-        lst[i1], lst[i2] = lst[i2], lst[i1]
-        count += 1
+    for i in range(10,000,000):
+        random.shuffle(lst)
     return lst
 
 def get_matrix(lst, counts_dict, mapping, order, X, realpth, controlpth):
@@ -71,18 +70,18 @@ if __name__ == "__main__":
         shuffle_pooled.append(a)
 
     for i in range(4):
-        realpath = './results/figures/shuffled/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
-        controlpath = './results/figures/shuffled/basket_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
-        get_matrix(shuffle_pooled[i], counts, maps, order, X, realpath, controlpath)
+        realpath = './results/figures/shuffled/basket/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
+        controlpath = './results/figures/shuffled//basket/basket_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
+        get_matrix(lst=shuffle_pooled[i], counts_dict=counts, mapping=maps, order=order, X=X, realpth=realpath, controlpth=controlpath)
     
     pooled = []
-    items_shuffled = shuffle_items(itemsets)
+    items_shuffled = shuffle_items(itemsets, maps)
     pooled.append(items_shuffled)
     for pool in range(4,11,3):
         a = freq.pool_baskets(items_shuffled, pool)
         pooled.append(a)
     
     for i in range(4):
-        realpath = './results/figures/shuffled/item_shuffle_leverage_matrix_{}.pdf'.format(i)
-        controlpath = './results/figures/shuffled/item_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
-        get_matrix(pooled[i], counts, maps, order, X, realpath, controlpath)
+        realpath = './results/figures/shuffled/item/item_shuffle_leverage_matrix_{}.pdf'.format(i)
+        controlpath = './results/figures/shuffled/item/item_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
+        get_matrix(lst=pooled[i], counts_dict=counts, mapping=maps, order=order, X=X, realpth=realpath, controlpth=controlpath)
