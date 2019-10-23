@@ -33,7 +33,7 @@ def shuffle_baskets(lst):
     """
     Shuffle the basket order rather than items within the baskets.
     """
-    for i in range(10,000,000):
+    for i in range(10000000):
         random.shuffle(lst)
     return lst
 
