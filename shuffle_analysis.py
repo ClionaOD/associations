@@ -31,7 +31,7 @@ def shuffle_baskets(lst):
     Shuffle the basket order rather than items within the baskets.
     """
     count = 0
-    while count < 1000000:
+    while count < 100000000:
         idx = range(len(lst))
         i1, i2 = random.sample(idx, 2)
         lst[i1], lst[i2] = lst[i2], lst[i1]
