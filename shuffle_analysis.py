@@ -17,9 +17,9 @@ def shuffle_items(lst, mapping):
     mapping: index values for each item from freq
     """
     clipped_lst = [[i for i in basket if i in list(mapping.keys())] for basket in itemsets]
-    encoded_lst = [[mapping[k] for k in bask] for bask in lst]
+    encoded_lst = [[mapping[k] for k in bask] for bask in clipped_lst]
     count = 0
-    while count < 50000000:
+    while count < 500:
         a = random.choice(encoded_lst)
         b = random.choice(encoded_lst)
         rand_idx_a = random.randint(0, len(a)-1)

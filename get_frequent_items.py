@@ -130,7 +130,7 @@ def get_w2v_order(freq_items_dict):
 
     return w2v_df, orderedNames
 
-def create_leverage_matrix(itemsets, counts_dict, mapping, X):
+def create_leverage_matrix(lst, counts_dict, mapping, X):
     """
     itemsets: list of baskets, either pooled or not
     counts_dict: a dictionary of each of the most frequent items and their frequency 
@@ -141,24 +141,24 @@ def create_leverage_matrix(itemsets, counts_dict, mapping, X):
     encoded_items = [mapping[k] for k in items]
 
     #first create the X * 1 probability matrix
-    single_probs = {k: v/len(itemsets) for k,v in counts_dict.items()}
+    single_probs = {k: v/len(lst) for k,v in counts_dict.items()}
     encoded = {mapping.get(k, k): v for k,v in single_probs.items()}
     single_probs_df = pd.DataFrame.from_dict(encoded, orient='index')
     single_probs_df = single_probs_df.reindex(encoded_items)
 
     #clean itemsets for efficiency
-    clipped_itemsets = [[i for i in basket if i in items] for basket in itemsets]
-    encoded_itemsets = [[mapping[k] for k in basket] for basket in clipped_itemsets]
+    clipped_lst = [[i for i in basket if i in items] for basket in lst]
+    encoded_lst = [[mapping[k] for k in basket] for basket in clipped_lst]
 
     #now create the X*X conditional probability matrix
     pair_counts = np.zeros((X,X))
 
-    for basket in encoded_itemsets:
+    for basket in encoded_lst:
         for idx, x in enumerate(basket[:-1]):
             for y in basket[idx+1 :]:
                 pair_counts[x,y] += 1
 
-    pair_probs = pair_counts/len(itemsets)
+    pair_probs = pair_counts/len(lst)
     pair_probs = pair_probs + np.transpose(pair_probs)
     pair_probs_df = pd.DataFrame(data=pair_probs, index=encoded_items, columns=encoded_items)
 
