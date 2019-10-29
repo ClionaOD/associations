@@ -4,6 +4,7 @@ Description: Continue the analysis as in analyse_itemsets.py, this time with con
 shuffling the temporal order of the baskets.
 """
 import pickle
+import json
 import copy
 import random
 import get_frequent_items as freq
@@ -15,9 +16,10 @@ def shuffle_items(lst, mapping):
     lst: the itemsets, either pooled or not.
     mapping: index values for each item from freq
     """
+    clipped_lst = [[i for i in basket if i in list(mapping.keys())] for basket in itemsets]
     encoded_lst = [[mapping[k] for k in bask] for bask in lst]
     count = 0
-    while count < 100000000:
+    while count < 50000000:
         a = random.choice(encoded_lst)
         b = random.choice(encoded_lst)
         rand_idx_a = random.randint(0, len(a)-1)
@@ -29,18 +31,10 @@ def shuffle_items(lst, mapping):
     new_lst = [[return_strings[k] for k in encoded_bask] for encoded_bask in encoded_lst]
     return new_lst
 
-def shuffle_baskets(lst):
-    """
-    Shuffle the basket order rather than items within the baskets.
-    """
-    for i in range(10000000):
-        random.shuffle(lst)
-    return lst
-
 def get_matrix(lst, counts_dict, mapping, order, X, realpth, controlpth):
     one_hot_items = freq.one_hot(lst)
     pool_count = freq.pooled_frequent_items(one_hot_items, counts_dict)
-    lev_df = freq.create_leverage_matrix(lst, pool_count, mapping)
+    lev_df = freq.create_leverage_matrix(lst, pool_count, mapping, X)
     freq.plot_matrix(lev_df, order, outpath=realpth)
     freq.self_cluster(lev_df, controlpth)
 
@@ -55,15 +49,16 @@ if __name__ == "__main__":
 
     with open('mapping.pickle', 'rb') as f:
         maps = pickle.load(f)
-    
+
     with open('lch_order.pickle', 'rb') as f:
         order = pickle.load(f)
 
     X = 150
 
     #shuffle each 200 ms basket and then pool across baskets
+
     shuffle_pooled = []
-    shuffled = shuffle_baskets(itemsets)
+    shuffled = random.sample(itemsets, (len(itemsets)))
     shuffle_pooled.append(shuffled)
     for pool in range(4,11,3):
         a = freq.pool_baskets(shuffled, pool)

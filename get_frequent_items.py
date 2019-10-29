@@ -5,7 +5,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from mlxtend.preprocessing import TransactionEncoder
 import nltk
-nltk.download('wordnet')
 from nltk.corpus import wordnet as wn
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
@@ -131,7 +130,7 @@ def get_w2v_order(freq_items_dict):
 
     return w2v_df, orderedNames
 
-def create_leverage_matrix(itemsets, counts_dict, mapping):
+def create_leverage_matrix(itemsets, counts_dict, mapping, X):
     """
     itemsets: list of baskets, either pooled or not
     counts_dict: a dictionary of each of the most frequent items and their frequency 
@@ -146,14 +145,13 @@ def create_leverage_matrix(itemsets, counts_dict, mapping):
     encoded = {mapping.get(k, k): v for k,v in single_probs.items()}
     single_probs_df = pd.DataFrame.from_dict(encoded, orient='index')
     single_probs_df = single_probs_df.reindex(encoded_items)
-    #single_probs_array = single_probs_df.values
 
     #clean itemsets for efficiency
     clipped_itemsets = [[i for i in basket if i in items] for basket in itemsets]
     encoded_itemsets = [[mapping[k] for k in basket] for basket in clipped_itemsets]
 
     #now create the X*X conditional probability matrix
-    pair_counts = np.zeros((150,150))
+    pair_counts = np.zeros((X,X))
 
     for basket in encoded_itemsets:
         for idx, x in enumerate(basket[:-1]):
@@ -226,6 +224,7 @@ def self_cluster(df,outpath):
     plot_matrix(df, orderedNames, outpath=outpath)
 
 if __name__ == "__main__":
+    nltk.download('wordnet')
 
     with open('itemsets.pickle', 'rb') as f:
         itemsets = pickle.load(f)
@@ -254,7 +253,7 @@ if __name__ == "__main__":
     plot_matrix(w2v_df, w2v_order, outpath='./results/figures/w2v_matrix_orderedw2v.pdf')
     print('Semantic measures complete.')
 
-    lev_df = create_leverage_matrix(itemsets, single_counts, mapping)
+    lev_df = create_leverage_matrix(itemsets, single_counts, mapping, X)
     plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_200.pdf')
     self_cluster(lev_df, './results/figures/leverage_matrix_200_levorder.pdf')
 
@@ -269,7 +268,7 @@ if __name__ == "__main__":
     for i in range(len(pooled)):
         one_hot_items = one_hot(pooled[i])
         pool_count = pooled_frequent_items(one_hot_items, single_counts)
-        lev_df = create_leverage_matrix(pooled[i], pool_count, mapping)
+        lev_df = create_leverage_matrix(pooled[i], pool_count, mapping, X)
         plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_{}.pdf'.format(i))
         self_cluster(lev_df, './results/figures/leverage_matrix_{}_levorder.pdf'.format(i))
 
