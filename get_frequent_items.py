@@ -161,7 +161,7 @@ def create_leverage_matrix(lst, counts_dict, mapping, X):
     pair_probs = pair_probs + np.transpose(pair_probs)
     pair_probs_df = pd.DataFrame(data=pair_probs, index=encoded_items, columns=encoded_items)
 
-    lev_df = - (single_probs_df.dot(single_probs_df.T))
+    lev_df = pair_probs_df - (single_probs_df.dot(single_probs_df.T))
     lev_df.index = items
     lev_df.columns = items
 
