@@ -1,5 +1,5 @@
 import pickle
-import numpy as np
+import numpy as np 
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -11,7 +11,6 @@ from scipy.spatial.distance import squareform
 from scipy.spatial.distance import pdist
 from itertools import combinations
 from gensim.models import KeyedVectors
-model = KeyedVectors.load_word2vec_format('/home/CUSACKLAB/clionaodoherty/GoogleNews-vectors-negative300.bin', binary=True, limit=500000)
 
 def one_hot(lst): 
     """one hot encode lst, a list of lists"""
@@ -20,7 +19,7 @@ def one_hot(lst):
     df = pd.SparseDataFrame(te_ary, columns=te.columns_, default_fill_value=False)
     return df
 
-def most_frequent_items(one_hot_df, X=150):
+def most_frequent_items(model, one_hot_df, X=150):
     """
     get top X (default 150) most frequent items from a one-hot encoded DataFrame
     store this is an encoded dictionary mapping each unique entry to an integer
@@ -108,7 +107,7 @@ def get_lch_order(items_dict, synset_mapping):
 
     return orderedNames, lch_df
 
-def get_w2v_order(freq_items_dict):
+def get_w2v_order(model, freq_items_dict):
     w2v = []
     items = list(freq_items_dict.keys())
     for item in items:
@@ -226,6 +225,8 @@ def self_cluster(df,outpath):
 
 if __name__ == "__main__":
     nltk.download('wordnet')
+    
+    model = KeyedVectors.load_word2vec_format('/home/CUSACKLAB/clionaodoherty/GoogleNews-vectors-negative300.bin', binary=True, limit=500000)
 
 with open('itemsets.pickle', 'rb') as f:
     itemsets = pickle.load(f)
@@ -236,7 +237,7 @@ with open('itemsets.pickle', 'rb') as f:
     X = 150
 
     one_hot_items = one_hot(itemsets)
-    single_counts, mapping = most_frequent_items(one_hot_items, X)
+    single_counts, mapping = most_frequent_items(model, one_hot_items, X)
 
     with open('single_counts.pickle', 'wb') as f:
         pickle.dump(single_counts, f)
@@ -244,7 +245,7 @@ with open('itemsets.pickle', 'rb') as f:
         pickle.dump(mapping, f)
     
     lch_order, lch_df = get_lch_order(single_counts, synset_mapping=item_synsets)
-    w2v_df, w2v_order = get_w2v_order(single_counts)
+    w2v_df, w2v_order = get_w2v_order(model, single_counts)
 
     with open('lch_order.pickle', 'wb') as f:
         pickle.dump(lch_order, f)
