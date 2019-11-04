@@ -160,8 +160,9 @@ def create_leverage_matrix(lst, counts_dict, mapping, X):
 
     pair_probs = pair_counts/len(lst)
     pair_probs = pair_probs + np.transpose(pair_probs)
-    pair_probs_df = pd.DataFrame(data=pair_probs, index=encoded_items, columns=encoded_items)
-
+    pair_probs_df = pd.DataFrame(data=pair_probs)
+    pair_probs_df = pair_probs_df.reindex(encoded_items, columns=encoded_items)
+    
     lev_df = pair_probs_df - (single_probs_df.dot(single_probs_df.T))
     lev_df.index = items
     lev_df.columns = items
@@ -228,8 +229,8 @@ if __name__ == "__main__":
     
     model = KeyedVectors.load_word2vec_format('/home/CUSACKLAB/clionaodoherty/GoogleNews-vectors-negative300.bin', binary=True, limit=500000)
 
-with open('itemsets.pickle', 'rb') as f:
-    itemsets = pickle.load(f)
+    with open('itemsets.pickle', 'rb') as f:
+        itemsets = pickle.load(f)
     
     with open('item_synsets.pickle', 'rb') as f:
         item_synsets = pickle.load(f)

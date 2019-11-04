@@ -16,23 +16,29 @@ def shuffle_items(lst, mapping):
     lst: the itemsets, either pooled or not.
     mapping: index values for each item from freq
     """
-lst = itemsets
-mapping = maps
 
-clipped_lst = [[i for i in basket if i in list(mapping.keys())] for basket in lst]
-clipped_lst = [i for i in clipped_lst if not len(i) == 0]
-encoded_lst = [[mapping[k] for k in bask] for bask in clipped_lst]
-count = 0
-while count < 10000000:
-    a = random.choice(encoded_lst)
-    b = random.choice(encoded_lst)
-    rand_idx_a = random.randint(0, len(a)-1)
-    rand_idx_b = random.randint(0, len(b)-1)
-    if not a[rand_idx_a] in b and not b[rand_idx_b] in a:
-        a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
-        count += 1
+    clipped_lst = [[i for i in basket if i in list(mapping.keys())] for basket in lst]
+    clipped_lst = [i for i in clipped_lst if not len(i) == 0]
+    encoded_lst = [[mapping[k] for k in bask] for bask in clipped_lst]
+
+    count = 0
+    log = 0
+    while count < 50000000:
+        a = random.choice(encoded_lst)
+        b = random.choice(encoded_lst)
+        rand_idx_a = random.randint(0, len(a)-1)
+        rand_idx_b = random.randint(0, len(b)-1)
+        if not a[rand_idx_a] in b and not b[rand_idx_b] in a:
+            a[rand_idx_a], b[rand_idx_b] = b[rand_idx_b], a[rand_idx_a]
+            count += 1
+        
+        if count % 1000000 == 0:
+            log += 1
+            print('{} million shuffles are complete'.format(log))
+
     return_strings = {v: k for k,v in mapping.items()}
     new_lst = [[return_strings[k] for k in encoded_bask] for encoded_bask in encoded_lst]
+    
     return new_lst
 
 def get_matrix(lst, counts_dict, mapping, order, X, realpth, controlpth):
@@ -63,6 +69,7 @@ if __name__ == "__main__":
 
     shuffle_pooled = []
     shuffled = random.sample(itemsets, (len(itemsets)))
+    print('Basket shuffling complete.')
     shuffle_pooled.append(shuffled)
     for pool in range(4,11,3):
         a = freq.pool_baskets(shuffled, pool)
@@ -72,9 +79,11 @@ if __name__ == "__main__":
         realpath = './results/figures/shuffled/basket/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
         controlpath = './results/figures/shuffled//basket/basket_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
         get_matrix(lst=shuffle_pooled[i], counts_dict=counts, mapping=maps, order=order, X=X, realpth=realpath, controlpth=controlpath)
+        print('Pool number {} complete.'.format(i))
     
     pooled = []
     items_shuffled = shuffle_items(itemsets, maps)
+    print('Item shuffling complete.')
     pooled.append(items_shuffled)
     for pool in range(4,11,3):
         a = freq.pool_baskets(items_shuffled, pool)
@@ -83,4 +92,4 @@ if __name__ == "__main__":
     for i in range(4):
         realpath = './results/figures/shuffled/item/item_shuffle_leverage_matrix_{}.pdf'.format(i)
         controlpath = './results/figures/shuffled/item/item_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
-        get_matrix(lst=items_shuffled, counts_dict=counts, mapping=maps, order=order, X=X, realpth='./results/items-shuf-one.pdf', controlpth='./results/items-shuf-one-levorder.pdf')
+        get_matrix(lst=items_shuffled, counts_dict=counts, mapping=maps, order=order, X=X, realpth=realpath, controlpth=controlpath)
