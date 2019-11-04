@@ -63,7 +63,7 @@ if __name__ == "__main__":
         for isind in range(0,nitems,nperbasket):
             itemsets.append(items[isind:isind+nperbasket]) 
         itemsets=itemsets*basketreps    # repeat this whole set this many times
-        itemsets.extend([['Food']]*10) 
+        itemsets.extend([[items[0]]]*10) 
     else:
         with open('itemsets.pickle', 'rb') as f:
             itemsets = pickle.load(f)

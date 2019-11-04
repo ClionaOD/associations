@@ -170,8 +170,7 @@ def create_leverage_matrix(lst, counts_dict, mapping, X):
     return lev_df
 
 def plot_matrix(df, order, outpath):
-    df = df.reindex(order, columns=order)
-
+    df = df.reindex(order,columns=order)
     cmap = plt.cm.coolwarm
     fig, ax = plt.subplots(figsize=(20,20))
     sns.heatmap(df, ax=ax, cmap=cmap, center=0, vmin=-1, vmax=1)
