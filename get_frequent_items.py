@@ -48,9 +48,9 @@ def pooled_frequent_items(one_hot_df, counts_dict):
     """
     items = list(counts_dict.keys())
     one_hot_counts = one_hot_df.sum(axis=0, skipna=True)
-    _ = one_hot_counts.to_dict()
+    one_hot_dict = one_hot_counts.to_dict()
 
-    pooled_counts = {item: freq for item, freq in _.items() if item in items}
+    pooled_counts = {item: freq for item, freq in one_hot_dict.items() if item in items}
     return pooled_counts
 
 def get_lch_order(items_dict, synset_mapping):
@@ -137,18 +137,19 @@ def create_leverage_matrix(lst, counts_dict, mapping, X):
         --> if pooled then this is the dictionary returned from pooled_frequent_items()
     mapping: the integer value mapping for each of the frequent items
     """
+    
     items = list(counts_dict.keys())
     encoded_items = [mapping[k] for k in items]
+
+    #clean itemsets for efficiency
+    clipped_lst = [[i for i in basket if i in items] for basket in lst]
+    encoded_lst = [[mapping[k] for k in basket] for basket in clipped_lst]
 
     #first create the X * 1 probability matrix
     single_probs = {k: v/len(lst) for k,v in counts_dict.items()}
     encoded = {mapping.get(k, k): v for k,v in single_probs.items()}
     single_probs_df = pd.DataFrame.from_dict(encoded, orient='index')
     single_probs_df = single_probs_df.reindex(encoded_items)
-
-    #clean itemsets for efficiency
-    clipped_lst = [[i for i in basket if i in items] for basket in lst]
-    encoded_lst = [[mapping[k] for k in basket] for basket in clipped_lst]
 
     #now create the X*X conditional probability matrix
     pair_counts = np.zeros((X,X))
@@ -226,8 +227,8 @@ def self_cluster(df,outpath):
 if __name__ == "__main__":
     nltk.download('wordnet')
 
-    with open('itemsets.pickle', 'rb') as f:
-        itemsets = pickle.load(f)
+with open('itemsets.pickle', 'rb') as f:
+    itemsets = pickle.load(f)
     
     with open('item_synsets.pickle', 'rb') as f:
         item_synsets = pickle.load(f)
