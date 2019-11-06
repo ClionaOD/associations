@@ -36,6 +36,9 @@ def shuffle_items(lst, mapping):
             log += 1
             print('{} million shuffles are complete'.format(log))
 
+        if log > 50:
+            count = 50000001
+
     return_strings = {v: k for k,v in mapping.items()}
     new_lst = [[return_strings[k] for k in encoded_bask] for encoded_bask in encoded_lst]
     

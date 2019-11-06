@@ -73,6 +73,10 @@ if __name__ == "__main__":
 
     #shuffle each 200 ms basket and then pool across baskets
 
+    a = './results/test/simulated_lev_matrix.pdf'
+    b = './results/test/simulated_lev_matrix_levorder.pdf'
+    get_matrix(itemsets, counts, maps, order, X, a, b)
+
     shuffle_pooled = []
     shuffled = random.sample(itemsets, (len(itemsets)))
     shuffle_pooled.append(shuffled)

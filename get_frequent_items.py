@@ -102,7 +102,8 @@ def get_lch_order(items_dict, synset_mapping):
         leaf_font_size=9,
         distance_sort='ascending',
         show_leaf_counts=True)
-    plt.savefig('./results/figures/lch_dendrogram.pdf')
+    plt.savefig('./results/figures/semantics/lch_dendrogram.pdf')
+    plt.close()
     orderedNames = den['ivl']
 
     return orderedNames, lch_df
@@ -124,8 +125,9 @@ def get_w2v_order(model, freq_items_dict):
         leaf_font_size=9,
         distance_sort='ascending',
         show_leaf_counts=True)
-    plt.savefig('./results/figures/w2v_dendrogram.pdf')
+    plt.savefig('./results/figures/semantics/w2v_dendrogram.pdf')
     orderedNames = den['ivl']
+    plt.close()
 
     return w2v_df, orderedNames
 
@@ -153,10 +155,14 @@ def create_leverage_matrix(lst, counts_dict, mapping, X):
     #now create the X*X conditional probability matrix
     pair_counts = np.zeros((X,X))
 
+    count = 0
     for basket in encoded_lst:
+        count += 1
         for idx, x in enumerate(basket[:-1]):
             for y in basket[idx+1 :]:
                 pair_counts[x,y] += 1
+    while count < len(lst):
+        print('Working on pairwise probabilities')
 
     pair_probs = pair_counts/len(lst)
     pair_probs = pair_probs + np.transpose(pair_probs)
@@ -166,6 +172,7 @@ def create_leverage_matrix(lst, counts_dict, mapping, X):
     lev_df = pair_probs_df - (single_probs_df.dot(single_probs_df.T))
     lev_df.index = items
     lev_df.columns = items
+    np.fill_diagonal(lev_df.values,1)
 
     return lev_df
 
@@ -250,14 +257,14 @@ if __name__ == "__main__":
     with open('lch_order.pickle', 'wb') as f:
         pickle.dump(lch_order, f)
     
-    plot_matrix(lch_df, lch_order, outpath='./results/figures/lch_matrix_scaled.pdf')
-    plot_matrix(w2v_df, lch_order, outpath='./results/figures/w2v_matrix.pdf')
-    plot_matrix(w2v_df, w2v_order, outpath='./results/figures/w2v_matrix_orderedw2v.pdf')
+    plot_matrix(lch_df, lch_order, outpath='./results/figures/semantics/lch_matrix_scaled.pdf')
+    plot_matrix(w2v_df, lch_order, outpath='./results/figures/semantics/w2v_matrix.pdf')
+    plot_matrix(w2v_df, w2v_order, outpath='./results/figures/semantics/w2v_matrix_orderedw2v.pdf')
     print('Semantic measures complete.')
 
     lev_df = create_leverage_matrix(itemsets, single_counts, mapping, X)
-    plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_200.pdf')
-    self_cluster(lev_df, './results/figures/leverage_matrix_200_levorder.pdf')
+    plot_matrix(lev_df, lch_order, outpath='./results/figures/real/leverage_matrix_200.pdf')
+    self_cluster(lev_df, './results/figures/real/leverage_matrix_200_levorder.pdf')
 
     #pool baskets into latency 800 ms, 1400 ms, 2000 ms)
     print('Begin pooling.')
@@ -271,8 +278,8 @@ if __name__ == "__main__":
         one_hot_items = one_hot(pooled[i])
         pool_count = pooled_frequent_items(one_hot_items, single_counts)
         lev_df = create_leverage_matrix(pooled[i], pool_count, mapping, X)
-        plot_matrix(lev_df, lch_order, outpath='./results/figures/leverage_matrix_{}.pdf'.format(i))
-        self_cluster(lev_df, './results/figures/leverage_matrix_{}_levorder.pdf'.format(i))
+        plot_matrix(lev_df, lch_order, outpath='./results/figures/real/leverage_matrix_{}.pdf'.format(i))
+        self_cluster(lev_df, './results/figures/real/leverage_matrix_{}_levorder.pdf'.format(i))
 
     
 
