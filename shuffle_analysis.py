@@ -78,6 +78,7 @@ if __name__ == "__main__":
         a = freq.pool_baskets(shuffled, pool)
         shuffle_pooled.append(a)
 
+
     for i in range(4):
         realpath = './results/figures/shuffled/basket/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
         controlpath = './results/figures/shuffled//basket/basket_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
