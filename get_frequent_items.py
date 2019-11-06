@@ -156,13 +156,13 @@ def create_leverage_matrix(lst, counts_dict, mapping, X):
     pair_counts = np.zeros((X,X))
 
     count = 0
+    print('Working on pairwise probabilities.')
     for basket in encoded_lst:
         count += 1
         for idx, x in enumerate(basket[:-1]):
             for y in basket[idx+1 :]:
                 pair_counts[x,y] += 1
-    while count < len(lst):
-        print('Working on pairwise probabilities')
+    print('Complete.')
 
     pair_probs = pair_counts/len(lst)
     pair_probs = pair_probs + np.transpose(pair_probs)
@@ -180,7 +180,7 @@ def plot_matrix(df, order, outpath):
     df = df.reindex(order,columns=order)
     cmap = plt.cm.coolwarm
     fig, ax = plt.subplots(figsize=(20,20))
-    sns.heatmap(df, ax=ax, cmap=cmap, center=0, vmin=-1, vmax=1)
+    sns.heatmap(df, ax=ax, cmap=cmap, center=0, vmin=-0.2, vmax=0.2)
     plt.savefig(outpath)
     plt.close()
 
@@ -252,14 +252,14 @@ if __name__ == "__main__":
         pickle.dump(mapping, f)
     
     lch_order, lch_df = get_lch_order(single_counts, synset_mapping=item_synsets)
-    w2v_df, w2v_order = get_w2v_order(model, single_counts)
+    #w2v_df, w2v_order = get_w2v_order(model, single_counts)
 
     with open('lch_order.pickle', 'wb') as f:
         pickle.dump(lch_order, f)
     
-    plot_matrix(lch_df, lch_order, outpath='./results/figures/semantics/lch_matrix_scaled.pdf')
-    plot_matrix(w2v_df, lch_order, outpath='./results/figures/semantics/w2v_matrix.pdf')
-    plot_matrix(w2v_df, w2v_order, outpath='./results/figures/semantics/w2v_matrix_orderedw2v.pdf')
+    #plot_matrix(lch_df, lch_order, outpath='./results/figures/semantics/lch_matrix_scaled.pdf')
+    #plot_matrix(w2v_df, lch_order, outpath='./results/figures/semantics/w2v_matrix.pdf')
+    #plot_matrix(w2v_df, w2v_order, outpath='./results/figures/semantics/w2v_matrix_orderedw2v.pdf')
     print('Semantic measures complete.')
 
     lev_df = create_leverage_matrix(itemsets, single_counts, mapping, X)
