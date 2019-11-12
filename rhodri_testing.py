@@ -73,9 +73,15 @@ if __name__ == "__main__":
 
     #shuffle each 200 ms basket and then pool across baskets
 
-    a = './results/test/simulated_lev_matrix.pdf'
-    b = './results/test/simulated_lev_matrix_levorder.pdf'
-    get_matrix(itemsets, counts, maps, order, X, a, b)
+    real_pooled = []
+    real_pooled.append(itemsets)
+    for pool in range(4,11,3):
+        a = freq.pool_baskets(itemsets,pool)
+        real_pooled.append(a)
+    for i in range(4):
+        realpath = './results/figures/test/real_lev_{}.pdf'.format(i)
+        controlpath = './results/figures/test/real_lev_levorder_{}.pdf'.format(i)
+        get_matrix(lst=real_pooled[i], counts_dict=counts, mapping=maps, order=order, X=X, realpth=realpath, controlpth=controlpath)
 
     shuffle_pooled = []
     shuffled = random.sample(itemsets, (len(itemsets)))
@@ -85,8 +91,8 @@ if __name__ == "__main__":
         shuffle_pooled.append(a)
 
     for i in range(4):
-        realpath = './results/figures/shuffled/basket/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
-        controlpath = './results/figures/shuffled//basket/basket_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
+        realpath = './results/figures/test/basket_shuffle_leverage_matrix_{}.pdf'.format(i)
+        controlpath = './results/figures/test/basket_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
         get_matrix(lst=shuffle_pooled[i], counts_dict=counts, mapping=maps, order=order, X=X, realpth=realpath, controlpth=controlpath)
     
     pooled = []
@@ -97,6 +103,6 @@ if __name__ == "__main__":
         pooled.append(a)
     
     for i in range(4):
-        realpath = './results/figures/shuffled/item/item_shuffle_leverage_matrix_{}.pdf'.format(i)
-        controlpath = './results/figures/shuffled/item/item_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
+        realpath = './results/figures/test/item_shuffle_leverage_matrix_{}.pdf'.format(i)
+        controlpath = './results/figures/test/item_shuffle_leverage_matrix_{}_levorder.pdf'.format(i)
         get_matrix(lst=pooled[i], counts_dict=counts, mapping=maps, order=order, X=X, realpth=realpath, controlpth=controlpath)
