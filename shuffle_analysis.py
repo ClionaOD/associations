@@ -44,12 +44,13 @@ def shuffle_items(lst, mapping):
     
     return new_lst
 
-def get_matrix(lst, counts_dict, mapping, order, X, realpth, controlpth):
+def get_matrix(lst, counts_dict, mapping, order, X): #, realpth, controlpth):
     one_hot_items = freq.one_hot(lst)
     pool_count = freq.pooled_frequent_items(one_hot_items, counts_dict)
     lev_df = freq.create_leverage_matrix(lst, pool_count, mapping, X)
-    freq.plot_matrix(lev_df, order, outpath=realpth)
-    freq.self_cluster(lev_df, controlpth)
+    #freq.plot_matrix(lev_df, order, outpath=realpth)
+    #freq.self_cluster(lev_df, controlpth)
+    return lev_df
 
 if __name__ == "__main__":
     
@@ -70,6 +71,9 @@ if __name__ == "__main__":
 
     #shuffle each 200 ms basket and then pool across baskets
 
+    lev_df = get_matrix(itemsets, counts, maps, order, X)
+    lev_df.to_csv(r'./results/leverage_0.csv', sep=',')
+    
     shuffle_pooled = []
     shuffled = random.sample(itemsets, (len(itemsets)))
     print('Basket shuffling complete.')
