@@ -2,14 +2,16 @@ import random
 import numpy as np
 import pickle
 from statsmodels.tsa.api import VAR
-import get_frequent_items as freq
+from mlxtend.preprocessing import TransactionEncoder
 
 with open('itemsets.pickle', 'rb') as f:
     itemsets = pickle.load(f)
 
-nlags = 5
+nlags = 3
 
-one_hot = freq.one_hot(itemsets)
+te = TransactionEncoder()
+one_hot = te.fit(itemsets).transform(itemsets, sparse=False)
+one_hot = one_hot.astype(int)
 
 model = VAR(one_hot)
 results = model.fit(maxlags=nlags)
