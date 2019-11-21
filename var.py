@@ -4,15 +4,33 @@ import pickle
 from statsmodels.tsa.api import VAR
 from mlxtend.preprocessing import TransactionEncoder
 
-with open('itemsets.pickle', 'rb') as f:
-    itemsets = pickle.load(f)
+def divide_dataset(lst, div):
+    length = int(len(lst)/div)
 
-nlags = 3
+    split_lst = []
+    mult = 0
+    for i in range(div):
+        x = lst[length*mult : length*(mult+1)]
+        split_lst.append(x)
+        mult += 1
 
-te = TransactionEncoder()
-one_hot = te.fit(itemsets).transform(itemsets, sparse=False)
-one_hot = one_hot.astype(int)
+    return split_lst
 
-model = VAR(one_hot)
-results = model.fit(maxlags=nlags)
-print(results.summary())
+def perform_var(lst, nlags):
+    te = TransactionEncoder()
+    one_hot = te.fit(lst).transform(lst, sparse=False)
+    one_hot = one_hot.astype(int)
+
+    model = VAR(one_hot)
+    results = model.fit(maxlags=nlags)
+    print(results.summary())
+
+if __name__ == "__main__":
+
+    with open('itemsets.pickle', 'rb') as f:
+        itemsets = pickle.load(f)
+
+    div_itemsets = divide_dataset(itemsets, 8)
+
+    for i in div_itemsets:
+        perform_var(i, 1)
