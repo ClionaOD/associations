@@ -26,6 +26,7 @@ def most_freq_one_hot(lst, X=150):
     counts = one_hot_df.sum(axis=0, skipna=True)
     top_X = pd.DataFrame(counts.nlargest(X,  keep='all'))
     
+
     freq_items = top_X.index.tolist()
     freq_onehot = one_hot_df[freq_items]
 
@@ -45,5 +46,8 @@ if __name__ == "__main__":
 
     div_itemsets = divide_dataset(itemsets, 8)
 
-    arr = most_freq_one_hot(div_itemsets[0])
-    perform_var(arr, nlags=4)
+    for i in range(0,len(div_itemsets)):
+        arr = most_freq_one_hot(div_itemsets[i])
+        perform_var(arr, nlags=4)
+
+        
