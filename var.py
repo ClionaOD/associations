@@ -63,6 +63,5 @@ if __name__ == "__main__":
 
     for i in range(0,len(div_itemsets)):
         arr = most_freq_one_hot(div_itemsets[i])
-        perform_var(arr, nlags=4, div=i)
-
+        results = perform_var(arr, nlags=4, div=i)
         
