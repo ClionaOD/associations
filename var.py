@@ -31,7 +31,9 @@ def most_freq_one_hot(lst, X=150):
     freq_onehot = one_hot_df[freq_items]
 
     onehot_arr = freq_onehot.values
-    return onehot_arr
+    items = list(freq_onehot.columns)
+    itemMaps = {k:v for k,v in enumerate(items)}
+    return onehot_arr, itemMaps
 
 
 def perform_var(arr, nlags, div):
@@ -62,6 +64,6 @@ if __name__ == "__main__":
     div_itemsets = divide_dataset(itemsets, 8)
 
     for i in range(0,len(div_itemsets)):
-        arr = most_freq_one_hot(div_itemsets[i])
+        arr, items = most_freq_one_hot(div_itemsets[i])
         results = perform_var(arr, nlags=4, div=i)
         
