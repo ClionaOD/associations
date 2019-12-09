@@ -59,6 +59,7 @@ def perform_var(arr, nlags, div):
         sns.heatmap(out_coefs[lag],ax=ax[lag])
 
     plt.savefig('./results/var/coefs/all_coefs_{}.pdf'.format(div))
+    plt.close()
 
     return results, out_coefs
 
@@ -71,7 +72,7 @@ if __name__ == "__main__":
 
     frequent_items = most_freq(itemsets, X=nitems)
 
-    div_itemsets = divide_dataset(itemsets, 8)
+    div_itemsets = divide_dataset(itemsets, 16)
 
     nlags=4
     decimateby=5
@@ -90,20 +91,20 @@ if __name__ == "__main__":
 
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
 
-    fig,ax=plt.subplots(ncols=nlags, figsize=[8,2])
+    fig,ax=plt.subplots(ncols=nlags, figsize=[10,5])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cmap='seismic', vmin=0, vmax=0.1)
-    plt.savefig('./results/var/mean_tstats_pvals.pdf')
+        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cmap='BuPu', vmin=0, vmax=0.1)
+    plt.savefig('./results/var/mean_tstats_pvals_{}lags.pdf'.format(nlags))
 
     mn_allcoefs=np.mean(allcoefs,axis=3)
-    fig,ax=plt.subplots(ncols=nlags, figsize=[8,2])
+    fig,ax=plt.subplots(ncols=nlags, figsize=[10,5])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
         sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-10, vmax=10, cmap='seismic')
-    plt.savefig('./results/var/mean_coefs.pdf')
+    plt.savefig('./results/var/mean_coefs_{}lags.pdf'.format(nlags))
 
     plt.show()
 
