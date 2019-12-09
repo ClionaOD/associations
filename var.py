@@ -81,28 +81,28 @@ if __name__ == "__main__":
         arr = one_hot_enc(div_itemsets[i], frequent_items)
         if decimateby:
             arr=signal.decimate(arr,decimateby,axis=0)
-            plt.figure()
-            sns.heatmap(arr)
-            plt.figure()
-            plt.plot(arr[1:500,:])
+            #plt.figure()
+            #sns.heatmap(arr)
+            #plt.figure()
+            #plt.plot(arr[1:500,:])
         results, coefs = perform_var(arr, nlags=nlags, div=i)
         allcoefs[:,:,:,i]=coefs
 
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
 
-    fig,ax=plt.subplots(ncols=nlags)
+    fig,ax=plt.subplots(ncols=nlags, figsize=[8,2])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag])
+        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cmap='seismic', vmin=0, vmax=0.1)
     plt.savefig('./results/var/mean_tstats_pvals.pdf')
 
     mn_allcoefs=np.mean(allcoefs,axis=3)
-    fig,ax=plt.subplots(ncols=nlags)
+    fig,ax=plt.subplots(ncols=nlags, figsize=[8,2])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(mn_allcoefs[lag],ax=ax[lag])
+        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-10, vmax=10, cmap='seismic')
     plt.savefig('./results/var/mean_coefs.pdf')
 
     plt.show()
