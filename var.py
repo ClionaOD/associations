@@ -58,24 +58,7 @@ def perform_var(arr, nlags, div):
     for lag in range(nlags):
         sns.heatmap(out_coefs[lag],ax=ax[lag])
 
-    # fig,ax=plt.subplots(ncols=nlags)
-    # if nlags==1:
-    #     ax=[ax]
-    # for lag in range(nlags):
-    #     sns.heatmap(results.pvalues[1+lag*results.neqs:1+(lag+1)*results.neqs,:],ax=ax[lag])
-
-#    plt.show()
-    for i in range(nlags):
-        coef_path = './results/var/coefs/coef_array_{}_{}.txt'.format(div, i)
-        np.savetxt(coef_path, out_coefs[i])
-
-    out_tvals = results.tvalues
-    tval_path = './results/var/tvalues/tval_array_{}.txt'.format(div)
-    np.savetxt(tval_path, out_tvals)
-
-    out_pvals = results.pvalues
-    pval_path = './results/var/pvalues/pval_array_{}.txt'.format(div)
-    np.savetxt(pval_path, out_pvals)
+    plt.savefig('./results/var/coefs/all_coefs_{}.pdf'.format(div))
 
     return results, out_coefs
 
@@ -112,6 +95,7 @@ if __name__ == "__main__":
         ax=[ax] 
     for lag in range(nlags):
         sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag])
+    plt.savefig('./results/var/mean_tstats_pvals.pdf')
 
     mn_allcoefs=np.mean(allcoefs,axis=3)
     fig,ax=plt.subplots(ncols=nlags)
@@ -119,6 +103,7 @@ if __name__ == "__main__":
         ax=[ax] 
     for lag in range(nlags):
         sns.heatmap(mn_allcoefs[lag],ax=ax[lag])
+    plt.savefig('./results/var/mean_coefs.pdf')
 
     plt.show()
 
