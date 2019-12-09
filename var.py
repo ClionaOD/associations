@@ -68,7 +68,7 @@ if __name__ == "__main__":
     with open('itemsets.pickle', 'rb') as f:
         itemsets = pickle.load(f)
 
-    nitems=10
+    nitems=150
 
     frequent_items = most_freq(itemsets, X=nitems)
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
 
-    fig,ax=plt.subplots(ncols=nlags, figsize=[10,5])
+    fig,ax=plt.subplots(ncols=nlags, figsize=[12,8])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     plt.savefig('./results/var/mean_tstats_pvals_{}lags.pdf'.format(nlags))
 
     mn_allcoefs=np.mean(allcoefs,axis=3)
-    fig,ax=plt.subplots(ncols=nlags, figsize=[10,5])
+    fig,ax=plt.subplots(ncols=nlags, figsize=[12,8])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
