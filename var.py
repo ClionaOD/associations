@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 from scipy import signal
+from statsmodels.discrete.discrete_model import BinaryModel
 
 def divide_dataset(lst, div):
     length = int(len(lst)/div)
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-10, vmax=10, cmap='seismic')
+        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-4, vmax=4, cmap='seismic')
     plt.savefig('./results/var/mean_coefs_{}lags.pdf'.format(nlags))
 
     plt.show()
