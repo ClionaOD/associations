@@ -50,26 +50,6 @@ def ridge_regress(X,y):
     clf.fit(X,y)
     coefs = clf.coef_
     return coefs
-    
-
-"""
-def perform_var(arr, nlags, div):
-    model = VAR(arr)
-    results = model.fit(maxlags=nlags)
-
-    out_coefs = results.coefs
-    
-    fig,ax=plt.subplots(ncols=nlags)
-    if nlags==1:
-        ax=[ax]
-    for lag in range(nlags):
-        sns.heatmap(out_coefs[lag],ax=ax[lag])
-
-    plt.savefig('./results/var/coefs/all_coefs_{}.pdf'.format(div))
-    plt.close()
-
-    return results, out_coefs
-"""
 
 if __name__ == "__main__":
 
@@ -83,7 +63,7 @@ if __name__ == "__main__":
     div_itemsets = divide_dataset(itemsets, 16)
 
     nlags=4
-    decimateby=5
+    decimateby=False
 
     allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
     
@@ -110,21 +90,6 @@ if __name__ == "__main__":
         plt.close()
         
         allcoefs[:,:,:,i] = div_coefs
-
-    """
-
-    allcoefs=np.zeros((nlags,nitems,nitems,len(div_itemsets)))
-    for i in range(0,len(div_itemsets)):
-        arr = one_hot_enc(div_itemsets[i], frequent_items)
-        if decimateby:
-            arr=signal.decimate(arr,decimateby,axis=0)
-            #plt.figure()
-            #sns.heatmap(arr)
-            #plt.figure()
-            #plt.plot(arr[1:500,:])
-        results, coefs = perform_var(arr, nlags=nlags, div=i)
-        allcoefs[:,:,:,i]=coefs
-    """
 
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
 
