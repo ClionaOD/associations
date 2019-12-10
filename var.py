@@ -64,6 +64,7 @@ if __name__ == "__main__":
 
     nlags=4
     decimateby=False
+    aggregby = 5
 
     allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
     
@@ -75,18 +76,20 @@ if __name__ == "__main__":
         if decimateby:
             arr = signal.decimate(arr,decimateby,axis=0)
         
-        for lag in range(1,nlags+1):
-            y = arr[nlags:,:]
-            X = arr[nlags-lag:-lag,:]
+        count = 0
+        for lag in range(0,nlags*aggregby,aggregby):
+            y = arr[nlags*aggregby:,:]
+            X = arr[lag:-nlags*aggregby+lag,:]
             coef = ridge_regress(X,y)
-            div_coefs[lag-1,:,:] = coef
+            div_coefs[count,:,:] = coef
+            count += 1
         
         fig,ax = plt.subplots(ncols=nlags)
         if nlags == 1:
             ax = [ax]
         for lag in range(nlags):
             sns.heatmap(div_coefs[lag], ax=ax[lag])
-        plt.savefig('./results/ridge_regression/coefs/coefs_div{}.pdf'.format(i))
+        plt.savefig('./results/ridge_regression/coefs/undecCoefs_div{}.pdf'.format(i))
         plt.close()
         
         allcoefs[:,:,:,i] = div_coefs
@@ -97,18 +100,34 @@ if __name__ == "__main__":
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cmap='BuPu', vmin=0, vmax=0.1)
-    plt.savefig('./results/ridge_regression/mean_tstats_pvals_{}lags.pdf'.format(nlags))
+        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cmap='autumn', vmin=0, vmax=0.1)
+    plt.savefig('./results/ridge_regression/undecMean_pvals_{}lags.pdf'.format(nlags))
 
     mn_allcoefs=np.mean(allcoefs,axis=3)
     fig,ax=plt.subplots(ncols=nlags, figsize=[12,8])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-1, vmax=1, cmap='seismic')
-    plt.savefig('./results/ridge_regression/mean_coefs_{}lags.pdf'.format(nlags))
+        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-0.1, vmax=0.1, cmap='seismic')
+    plt.savefig('./results/ridge_regression/undecMean_coefs_{}lags.pdf'.format(nlags))
 
     plt.show()
+
+    fig,ax = plt.subplots(ncols=nlags, figsize=[10,10])
+    if nlags==1:
+        ax=[ax]
+    for lag in range(nlags):
+        pvals = coef_tstats.pvalue[lag]
+        sigPval = np.zeros((150,150))
+        sigs = np.where(pvals < 0.1)
+        sigs = list(zip(sigs[0], sigs[1]))
+        for coord in sigs:
+            sigPval[coord[0]][coord[1]] = 1
+
+        sns.heatmap(sigPval, ax=ax[lag], cmap='binary', vmin=0, vmax=1)
+    plt.savefig('./results/ridge_regression/undecMeanPval_P<0.01.pdf')
+
+
 
 
     
