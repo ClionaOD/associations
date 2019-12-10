@@ -114,8 +114,8 @@ if __name__ == "__main__":
         ax=[ax] 
     for lag in range(nlags):
         sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-0.1, vmax=0.1, cmap='seismic')
-        ax[lag].set_xticklabels(order)
-        ax[lag].set_yticklabels(order)
+        ax[lag].set_xticklabels(frequent_items)
+        ax[lag].set_yticklabels(frequent_items)
     plt.savefig('./results/ridge_regression/FREQ_undecMean_coefs.pdf')
 
     fig,ax = plt.subplots(ncols=nlags, figsize=[20,10])
@@ -130,8 +130,8 @@ if __name__ == "__main__":
             sigPval[coord[0]][coord[1]] = 1
 
         sns.heatmap(sigPval, ax=ax[lag], cmap='binary', vmin=0, vmax=1)
-        ax[lag].set_xticklabels(order)
-        ax[lag].set_yticklabels(order)
+        ax[lag].set_xticklabels(frequent_items)
+        ax[lag].set_yticklabels(frequent_items)
     plt.savefig('./results/ridge_regression/FREQ_undecMeanPval_P<0.01.pdf')
 
     plt.show()
