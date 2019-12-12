@@ -6,7 +6,6 @@ from mlxtend.preprocessing import TransactionEncoder
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
-from scipy import signal
 from sklearn.linear_model import Ridge
 
 def divide_dataset(lst, div):
@@ -56,32 +55,25 @@ if __name__ == "__main__":
     with open('itemsets.pickle', 'rb') as f:
         itemsets = pickle.load(f)
 
-    #with open('lch_order.pickle', 'rb') as f:
-     #   lchOrder = pickle.load(f)
+    with open('lch_order.pickle', 'rb') as f:
+       lchOrder = pickle.load(f)
 
     nitems=150
 
     frequent_items = most_freq(itemsets, X=nitems)
-    with open('freq_order.pickle', 'wb') as f:
-        pickle.dump(frequent_items, f)
 
     chosenOrder = lchOrder
 
     div_itemsets = divide_dataset(itemsets, 16)
 
     nlags=4
-    decimateby=False
-    aggregby = 5
+    aggregby = 500
 
     allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
 
     for i in range(0, len(div_itemsets)):
         arr = one_hot_enc(div_itemsets[i], chosenOrder)
-        nobs = len(arr)
         div_coefs = np.zeros((nlags, nitems, nitems))
-        
-        if decimateby:
-            arr = signal.decimate(arr,decimateby,axis=0)
         
         count = 1
         for lag in range(0,nlags*aggregby,aggregby):
@@ -95,6 +87,9 @@ if __name__ == "__main__":
 
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
     maps = {str(k):v for k,v in enumerate(chosenOrder)}
+
+    with open('LCH_allcoefs_agg500.pickle', 'wb') as f:
+        pickle.dump(allcoefs,f)
 
     if chosenOrder == frequent_items:
         tag = 'FREQ'

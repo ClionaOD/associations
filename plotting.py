@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import pickle
 from scipy import stats
 
-#with open('LCH_allcoefs.pickle', 'rb') as f:
-#    allcoefs = pickle.load(f)
-
-with open('FREQ_allcoefs.pickle', 'rb') as f:
+with open('LCH_allcoefs_agg150.pickle', 'rb') as f:
     allcoefs = pickle.load(f)
+
+#with open('FREQ_allcoefs.pickle', 'rb') as f:
+#    allcoefs = pickle.load(f)
 
 with open('lch_order.pickle', 'rb') as f:
     lchOrder = pickle.load(f)
@@ -18,22 +18,23 @@ with open('freq_order.pickle', 'rb') as f:
 
 nlags = 4
 
-chosenOrder = freqOrder
+chosenOrder = lchOrder
 
 if chosenOrder == lchOrder:
     tag = 'LCH'
 elif chosenOrder == freqOrder:
     tag = 'FREQ'
 
+aggby = 150
+
 coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
-maps = {str(k):v for k,v in enumerate(chosenOrder)}
 
 for lag in range(nlags):
     fig,ax = plt.subplots(figsize=[20,15])
     sns.heatmap(coef_tstats.pvalue[lag],ax=ax, cmap='YlGnBu', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=0, vmax=0.1)
     ax.axes.set_title('Mean Pvalues Lag {}'.format(lag+1), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/indvFigures/{}/{}_lag{}_meanPvals.pdf'.format(tag,tag,lag+1))
+    plt.savefig('./results/ridge_regression/indvFigures/Agg{}/{}_{}secLag{}_meanPvals.pdf'.format(aggby,tag,(200*aggby)/1000, lag+1))
 
 mn_allcoefs=np.mean(allcoefs,axis=3)
 for lag in range(nlags):
@@ -41,7 +42,7 @@ for lag in range(nlags):
     sns.heatmap(mn_allcoefs[lag],ax=ax, cmap='seismic', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=-0.1, vmax=0.1)
     ax.axes.set_title('Mean Betas Lag {}'.format(lag+1), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/indvFigures/{}/{}_lag{}_meanCoefs.pdf'.format(tag,tag,lag+1))
+    plt.savefig('./results/ridge_regression/indvFigures/Agg{}/{}_{}secLag{}_meanCoefs.pdf'.format(aggby,tag,(200*aggby)/1000,lag+1))
 
 for lag in range(nlags):        
     pvals = coef_tstats.pvalue[lag]
@@ -55,4 +56,4 @@ for lag in range(nlags):
     sns.heatmap(sigPval,ax=ax, cmap='binary', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=0, vmax=1)
     ax.axes.set_title('Pairs with p < 0.01, Lag {}'.format(lag+1), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/indvFigures/{}/{}_lag{}_meanSigs.pdf'.format(tag,tag,lag+1))
+    plt.savefig('./results/ridge_regression/indvFigures/Agg{}/{}_{}secLag{}_meanSigs.pdf'.format(aggby,tag,(200*aggby)/1000,lag+1))
