@@ -57,11 +57,13 @@ if __name__ == "__main__":
         itemsets = pickle.load(f)
 
     with open('lch_order.pickle', 'rb') as f:
-        order = pickle.load(f)
+        lchOrder = pickle.load(f)
 
     nitems=150
 
     frequent_items = most_freq(itemsets, X=nitems)
+
+    chosenOrder = lchOrder
 
     div_itemsets = divide_dataset(itemsets, 16)
 
@@ -72,56 +74,82 @@ if __name__ == "__main__":
     allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
 
     for i in range(0, len(div_itemsets)):
-        arr = one_hot_enc(div_itemsets[i], frequent_items) #order
+        arr = one_hot_enc(div_itemsets[i], chosenOrder)
         nobs = len(arr)
         div_coefs = np.zeros((nlags, nitems, nitems))
         
         if decimateby:
             arr = signal.decimate(arr,decimateby,axis=0)
         
-        count = 0
+        count = 1
         for lag in range(0,nlags*aggregby,aggregby):
             y = arr[nlags*aggregby:,:]
-            X = arr[lag:-nlags*aggregby+lag,:]
+            X = arr[lag:-nlags*aggregby+lag,:] #this puts the lags backwards
             coef = ridge_regress(X,y)
-            div_coefs[count,:,:] = coef
+            div_coefs[-count,:,:] = coef #therefore do this (minus index)
             count += 1
-        
-        '''fig,ax = plt.subplots(ncols=nlags)
-        if nlags == 1:
-            ax = [ax]
-        for lag in range(nlags):
-            sns.heatmap(div_coefs[lag], ax=ax[lag])
-        plt.savefig('./results/ridge_regression/coefs/lch_order/undecCoefs_lch_{}.pdf'.format(i))
-        plt.close()'''
         
         allcoefs[:,:,:,i] = div_coefs
 
+    with open('LCH_allcoefs.pickle', 'wb') as f:
+        pickle.dump(allcoefs, f)
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
+    maps = {str(k):v for k,v in enumerate(chosenOrder)}
 
-    fig,ax=plt.subplots(ncols=nlags, figsize=[20,10])
+    if chosenOrder == frequent_items:
+        tag = 'FREQ'
+    elif chosenOrder == lchOrder:
+        tag = 'LCH'
+
+    fig,ax=plt.subplots(ncols=nlags, figsize=[30,10])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cmap='YlGnBu', vmin=0, vmax=0.1)
-        ax[lag].set_xticklabels(frequent_items)
-        ax[lag].set_yticklabels(frequent_items)
-    plt.savefig('./results/ridge_regression/FREQ_undecMean_pvals.pdf')
+        if lag == range(nlags)[-1]:
+            cbar=True
+        else:
+            cbar=False
+        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cbar=cbar, cmap='YlGnBu', vmin=0, vmax=0.1)
+        xlabels = ax[lag].xaxis.get_ticklabels()
+        xlabels = [k.get_text() for k in xlabels]
+        ylabels = ax[lag].yaxis.get_ticklabels()
+        ylabels = [k.get_text() for k in ylabels]
+
+        newlabels_x = [maps[k] for k in xlabels]
+        newlabels_y = [maps[k] for k in ylabels]
+
+        ax[lag].set_xticklabels(newlabels_x)
+        ax[lag].set_yticklabels(newlabels_y)
+
+    plt.savefig('./results/ridge_regression/{}_undecMean_pvals.pdf'.format(tag))
 
     mn_allcoefs=np.mean(allcoefs,axis=3)
-    fig,ax=plt.subplots(ncols=nlags, figsize=[20,10])
+    fig,ax=plt.subplots(ncols=nlags, figsize=[30,10])
     if nlags==1:
         ax=[ax] 
     for lag in range(nlags):
-        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], vmin=-0.1, vmax=0.1, cmap='seismic')
-        ax[lag].set_xticklabels(frequent_items)
-        ax[lag].set_yticklabels(frequent_items)
-    plt.savefig('./results/ridge_regression/FREQ_undecMean_coefs.pdf')
+        if lag == range(nlags)[-1]:
+            cbar=True
+        else:
+            cbar=False
+        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], cbar=cbar, vmin=-0.1, vmax=0.1, cmap='seismic')
+        xlabels = ax[lag].xaxis.get_ticklabels()
+        xlabels = [k.get_text() for k in xlabels]
+        ylabels = ax[lag].yaxis.get_ticklabels()
+        ylabels = [k.get_text() for k in ylabels]
 
-    fig,ax = plt.subplots(ncols=nlags, figsize=[20,10])
+        newlabels_x = [maps[k] for k in xlabels]
+        newlabels_y = [maps[k] for k in ylabels]
+
+        ax[lag].set_xticklabels(newlabels_x)
+        ax[lag].set_yticklabels(newlabels_y)
+    plt.savefig('./results/ridge_regression/{}_undecMean_coefs.pdf'.format(tag))
+
+    fig,ax = plt.subplots(ncols=nlags, figsize=[30,10])
     if nlags==1:
         ax=[ax]
     for lag in range(nlags):
+        
         pvals = coef_tstats.pvalue[lag]
         sigPval = np.zeros((150,150))
         sigs = np.where(pvals < 0.01)
@@ -129,10 +157,22 @@ if __name__ == "__main__":
         for coord in sigs:
             sigPval[coord[0]][coord[1]] = 1
 
-        sns.heatmap(sigPval, ax=ax[lag], cmap='binary', vmin=0, vmax=1)
-        ax[lag].set_xticklabels(frequent_items)
-        ax[lag].set_yticklabels(frequent_items)
-    plt.savefig('./results/ridge_regression/FREQ_undecMeanPval_P<0.01.pdf')
+        if lag == range(nlags)[-1]:
+            cbar=True
+        else:
+            cbar=False
+        sns.heatmap(sigPval, ax=ax[lag], cbar=cbar, cmap='binary', vmin=0, vmax=1)
+        xlabels = ax[lag].xaxis.get_ticklabels()
+        xlabels = [k.get_text() for k in xlabels]
+        ylabels = ax[lag].yaxis.get_ticklabels()
+        ylabels = [k.get_text() for k in ylabels]
+
+        newlabels_x = [maps[k] for k in xlabels]
+        newlabels_y = [maps[k] for k in ylabels]
+
+        ax[lag].set_xticklabels(newlabels_x)
+        ax[lag].set_yticklabels(newlabels_y)
+    plt.savefig('./results/ridge_regression/{}_undecMeanPval_P<0.01.pdf'.format(tag))
 
     plt.show()
 
