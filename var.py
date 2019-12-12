@@ -56,12 +56,14 @@ if __name__ == "__main__":
     with open('itemsets.pickle', 'rb') as f:
         itemsets = pickle.load(f)
 
-    with open('lch_order.pickle', 'rb') as f:
-        lchOrder = pickle.load(f)
+    #with open('lch_order.pickle', 'rb') as f:
+     #   lchOrder = pickle.load(f)
 
     nitems=150
 
     frequent_items = most_freq(itemsets, X=nitems)
+    with open('freq_order.pickle', 'wb') as f:
+        pickle.dump(frequent_items, f)
 
     chosenOrder = lchOrder
 
@@ -91,8 +93,6 @@ if __name__ == "__main__":
         
         allcoefs[:,:,:,i] = div_coefs
 
-    with open('LCH_allcoefs.pickle', 'wb') as f:
-        pickle.dump(allcoefs, f)
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
     maps = {str(k):v for k,v in enumerate(chosenOrder)}
 
