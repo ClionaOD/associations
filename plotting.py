@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pickle
 from scipy import stats
 
-with open('LCH_allcoefs_fitIntercept.pickle', 'rb') as f:
+with open('LCH_allcoefs_fitIntercept(normalise).pickle', 'rb') as f:
     allcoefs = pickle.load(f)
 
 #with open('FREQ_allcoefs.pickle', 'rb') as f:
