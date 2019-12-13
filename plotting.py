@@ -25,7 +25,7 @@ if chosenOrder == lchOrder:
 elif chosenOrder == freqOrder:
     tag = 'FREQ'
 
-aggby = 150
+aggby = 5
 
 coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
 
@@ -56,4 +56,4 @@ for lag in range(nlags):
     sns.heatmap(sigPval,ax=ax, cmap='binary', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=0, vmax=1)
     ax.axes.set_title('Pairs with p < 0.01, Lag {}'.format(lag+1), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/fit_intercept/{}_{}secLag{}_meanSigs.pdf'.format(tag,(200*aggby)/1000,lag+1))
+    plt.savefig('./results/ridge_regression/fit_intercept/{}_{}secLag{}_meanSigs.pdf'.format(tag,int((200*aggby)/1000),lag+1))

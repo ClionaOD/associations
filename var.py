@@ -45,7 +45,7 @@ def one_hot_enc(lst, items):
     return onehot_arr
 
 def ridge_regress(X,y):
-    clf = Ridge(alpha=1)
+    clf = Ridge(alpha=1, normalize=True)
     clf.fit(X,y)
     coefs = clf.coef_
     return coefs
@@ -85,97 +85,7 @@ if __name__ == "__main__":
         
         allcoefs[:,:,:,i] = div_coefs
     
-    with open('LCH_allcoefs_fitIntercept.pickle', 'wb') as f:
+    with open('LCH_allcoefs_fitIntercept(normalise).pickle', 'wb') as f:
         pickle.dump(allcoefs,f)
-
-    #with open('LCH_allcoefs_agg500.pickle', 'wb') as f:
-    #    pickle.dump(allcoefs,f)
-
-"""   
-    coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
-    maps = {str(k):v for k,v in enumerate(chosenOrder)}
-
-    if chosenOrder == frequent_items:
-        tag = 'FREQ'
-    elif chosenOrder == lchOrder:
-        tag = 'LCH'
-
-   
-    fig,ax=plt.subplots(ncols=nlags, figsize=[30,10])
-    if nlags==1:
-        ax=[ax] 
-    for lag in range(nlags):
-        if lag == range(nlags)[-1]:
-            cbar=True
-        else:
-            cbar=False
-        sns.heatmap(coef_tstats.pvalue[lag],ax=ax[lag], cbar=cbar, cmap='YlGnBu', vmin=0, vmax=0.1)
-        xlabels = ax[lag].xaxis.get_ticklabels()
-        xlabels = [k.get_text() for k in xlabels]
-        ylabels = ax[lag].yaxis.get_ticklabels()
-        ylabels = [k.get_text() for k in ylabels]
-
-        newlabels_x = [maps[k] for k in xlabels]
-        newlabels_y = [maps[k] for k in ylabels]
-
-        ax[lag].set_xticklabels(newlabels_x)
-        ax[lag].set_yticklabels(newlabels_y)
-
-    plt.savefig('./results/ridge_regression/{}_undecMean_pvals.pdf'.format(tag))
-
-    mn_allcoefs=np.mean(allcoefs,axis=3)
-    fig,ax=plt.subplots(ncols=nlags, figsize=[30,10])
-    if nlags==1:
-        ax=[ax] 
-    for lag in range(nlags):
-        if lag == range(nlags)[-1]:
-            cbar=True
-        else:
-            cbar=False
-        sns.heatmap(mn_allcoefs[lag],ax=ax[lag], cbar=cbar, vmin=-0.1, vmax=0.1, cmap='seismic')
-        xlabels = ax[lag].xaxis.get_ticklabels()
-        xlabels = [k.get_text() for k in xlabels]
-        ylabels = ax[lag].yaxis.get_ticklabels()
-        ylabels = [k.get_text() for k in ylabels]
-
-        newlabels_x = [maps[k] for k in xlabels]
-        newlabels_y = [maps[k] for k in ylabels]
-
-        ax[lag].set_xticklabels(newlabels_x)
-        ax[lag].set_yticklabels(newlabels_y)
-    plt.savefig('./results/ridge_regression/{}_undecMean_coefs.pdf'.format(tag))
-
-    fig,ax = plt.subplots(ncols=nlags, figsize=[30,10])
-    if nlags==1:
-        ax=[ax]
-    for lag in range(nlags):
-        
-        pvals = coef_tstats.pvalue[lag]
-        sigPval = np.zeros((150,150))
-        sigs = np.where(pvals < 0.01)
-        sigs = list(zip(sigs[0], sigs[1]))
-        for coord in sigs:
-            sigPval[coord[0]][coord[1]] = 1
-
-        if lag == range(nlags)[-1]:
-            cbar=True
-        else:
-            cbar=False
-        sns.heatmap(sigPval, ax=ax[lag], cbar=cbar, cmap='binary', vmin=0, vmax=1)
-        xlabels = ax[lag].xaxis.get_ticklabels()
-        xlabels = [k.get_text() for k in xlabels]
-        ylabels = ax[lag].yaxis.get_ticklabels()
-        ylabels = [k.get_text() for k in ylabels]
-
-        newlabels_x = [maps[k] for k in xlabels]
-        newlabels_y = [maps[k] for k in ylabels]
-
-        ax[lag].set_xticklabels(newlabels_x)
-        ax[lag].set_yticklabels(newlabels_y)
-    plt.savefig('./results/ridge_regression/{}_undecMeanPval_P<0.01.pdf'.format(tag))
-
-    plt.show()
-"""
-
 
     
