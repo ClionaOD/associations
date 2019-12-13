@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
 
 def divide_dataset(lst, div):
     length = int(len(lst)/div)
@@ -50,6 +51,12 @@ def ridge_regress(X,y):
     coefs = clf.coef_
     return coefs
 
+def lasso_regress(X,y):
+    clf = Lasso(alpha=1, normalize=True)
+    clf.fit(X,y)
+    coefs = clf.coef_
+    return coefs
+
 if __name__ == "__main__":
 
     with open('itemsets.pickle', 'rb') as f:
@@ -66,8 +73,8 @@ if __name__ == "__main__":
     div_itemsets = divide_dataset(itemsets, 16)
 
     nitems=150
-    nlags=2
-    aggregby = 18000
+    nlags=4
+    aggregby = 5
 
     allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
 
@@ -79,13 +86,13 @@ if __name__ == "__main__":
         for lag in range(0,nlags*aggregby,aggregby):
             y = arr[nlags*aggregby:,:]
             X = arr[lag:-nlags*aggregby+lag,:] #this puts the lags backwards
-            coef = ridge_regress(X,y)
+            coef = lasso_regress(X,y)
             div_coefs[-count,:,:] = coef #therefore do this (minus index)
             count += 1
         
         allcoefs[:,:,:,i] = div_coefs
     
-    with open('LCH_allcoefs_36000lag.pickle', 'wb') as f:
+    with open('./results/lasso_regression/LCH_allcoefs_1seclag.pickle', 'wb') as f:
         pickle.dump(allcoefs,f)
 
     
