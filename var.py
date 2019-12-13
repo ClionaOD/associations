@@ -45,7 +45,7 @@ def one_hot_enc(lst, items):
     return onehot_arr
 
 def ridge_regress(X,y):
-    clf = Ridge(alpha=1,fit_intercept=False)
+    clf = Ridge(alpha=1)
     clf.fit(X,y)
     coefs = clf.coef_
     return coefs
@@ -58,16 +58,16 @@ if __name__ == "__main__":
     with open('lch_order.pickle', 'rb') as f:
        lchOrder = pickle.load(f)
 
-    nitems=150
-
-    frequent_items = most_freq(itemsets, X=nitems)
+    with open('freq_order.pickle', 'rb') as f:
+        frequent_items = pickle.load(f)
 
     chosenOrder = lchOrder
 
     div_itemsets = divide_dataset(itemsets, 16)
 
+    nitems=150
     nlags=4
-    aggregby = 500
+    aggregby = 5
 
     allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
 
@@ -84,18 +84,23 @@ if __name__ == "__main__":
             count += 1
         
         allcoefs[:,:,:,i] = div_coefs
+    
+    with open('LCH_allcoefs_fitIntercept.pickle', 'wb') as f:
+        pickle.dump(allcoefs,f)
 
+    #with open('LCH_allcoefs_agg500.pickle', 'wb') as f:
+    #    pickle.dump(allcoefs,f)
+
+"""   
     coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
     maps = {str(k):v for k,v in enumerate(chosenOrder)}
-
-    with open('LCH_allcoefs_agg500.pickle', 'wb') as f:
-        pickle.dump(allcoefs,f)
 
     if chosenOrder == frequent_items:
         tag = 'FREQ'
     elif chosenOrder == lchOrder:
         tag = 'LCH'
 
+   
     fig,ax=plt.subplots(ncols=nlags, figsize=[30,10])
     if nlags==1:
         ax=[ax] 
@@ -170,6 +175,7 @@ if __name__ == "__main__":
     plt.savefig('./results/ridge_regression/{}_undecMeanPval_P<0.01.pdf'.format(tag))
 
     plt.show()
+"""
 
 
     
