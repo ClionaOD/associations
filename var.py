@@ -73,7 +73,7 @@ if __name__ == "__main__":
     div_itemsets = divide_dataset(itemsets, 16)
     
     Sweep = True
-    sweeps = np.geomspace(1,36000,num=40, dtype=int)
+    sweeps = np.linspace(1,36000,num=40, dtype=int)
     nitems=150
     nlags=4
     aggregby = 5
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         df = pd.DataFrame(diags,columns=sweeps,index=chosenOrder)
 
 
-        with open('./results/ridge_regression/diagonals.pickle', 'wb') as f:
+        with open('./results/ridge_regression/diagonals_linspace.pickle', 'wb') as f:
             pickle.dump(df,f)
 
     else:
