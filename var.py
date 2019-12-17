@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 from sklearn.linear_model import Ridge
-from sklearn.linear_model import Lasso
+from sklearn.linear_model import MultiTaskLassoCV
 
 def divide_dataset(lst, div):
     length = int(len(lst)/div)
@@ -52,7 +52,7 @@ def ridge_regress(X,y):
     return coefs
 
 def lasso_regress(X,y):
-    clf = Lasso(alpha=1, normalize=True)
+    clf = MultiTaskLassoCV(cv=5, random_state=0, normalize=True)
     clf.fit(X,y)
     coefs = clf.coef_
     return coefs
@@ -71,28 +71,48 @@ if __name__ == "__main__":
     chosenOrder = lchOrder
 
     div_itemsets = divide_dataset(itemsets, 16)
-
+    
+    Sweep = True
+    sweeps = np.geomspace(1,36000,num=40, dtype=int)
     nitems=150
     nlags=4
     aggregby = 5
 
-    allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
+    if Sweep == True:
+        diags = np.zeros((nitems, len(sweeps)))
+        arr = one_hot_enc(itemsets, chosenOrder)
+        for lag in range(0,len(sweeps)):
+            y = arr[sweeps[-1]:,:]
+            X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
+            coef = ridge_regress(X,y)
+            d = coef.diagonal()
+            diags[:,lag] = d
+        df = pd.DataFrame(diags,columns=sweeps,index=chosenOrder)
 
-    for i in range(0, len(div_itemsets)):
-        arr = one_hot_enc(div_itemsets[i], chosenOrder)
-        div_coefs = np.zeros((nlags, nitems, nitems))
+
+        with open('./results/ridge_regression/diagonals.pickle', 'wb') as f:
+            pickle.dump(df,f)
+
+    else:
+        allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
+
+        for i in range(0, len(div_itemsets)):
+            arr = one_hot_enc(div_itemsets[i], chosenOrder)
+            div_coefs = np.zeros((nlags, nitems, nitems))
+
+            
+            
+            count = 1
+            for lag in range(0,nlags*aggregby,aggregby):
+                y = arr[nlags*aggregby:,:]
+                X = arr[lag:-nlags*aggregby+lag,:] #this puts the lags backwards
+                coef = ridge_regress(X,y)
+                div_coefs[-count,:,:] = coef #therefore do this (minus index)
+                count += 1
+            
+            allcoefs[:,:,:,i] = div_coefs
         
-        count = 1
-        for lag in range(0,nlags*aggregby,aggregby):
-            y = arr[nlags*aggregby:,:]
-            X = arr[lag:-nlags*aggregby+lag,:] #this puts the lags backwards
-            coef = lasso_regress(X,y)
-            div_coefs[-count,:,:] = coef #therefore do this (minus index)
-            count += 1
-        
-        allcoefs[:,:,:,i] = div_coefs
-    
-    with open('./results/lasso_regression/LCH_allcoefs_1seclag.pickle', 'wb') as f:
-        pickle.dump(allcoefs,f)
+        with open('./results/lasso_regression/LCH_allcoefs_1seclag.pickle', 'wb') as f:
+            pickle.dump(allcoefs,f)
 
     
