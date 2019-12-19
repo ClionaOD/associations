@@ -42,7 +42,6 @@ def one_hot_enc(lst, items):
 
     onehot_arr = freq_onehot.values
     items = list(freq_onehot.columns)
-    itemMaps = {k:v for k,v in enumerate(items)}
     return onehot_arr
 
 def ridge_regress(X,y):
