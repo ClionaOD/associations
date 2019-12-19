@@ -96,7 +96,7 @@ if __name__ == "__main__":
             pickle.dump(df,f)
     
     elif offDiags == True:
-        diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
+        offdiags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
         arr = one_hot_enc(itemsets,chosenOrder)
 
         for lag in range(len(sweeps)):
@@ -104,9 +104,16 @@ if __name__ == "__main__":
             X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
             coef = ridge_regress(X,y)
 
+            #remove diagonals and flatten
+            offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
+            offd = offd.reshape(-1)
+            offdiags[:,lag] = offd
+
+        df = pd.DataFrame(offdiags, columns=sweeps)
+        
+        with open('./results/ridge_regression/offDiagonals_linspace.pickle','wb') as f:
+            pickle.dump(df,f)
             
-
-
     else:
         allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
 
