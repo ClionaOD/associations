@@ -66,7 +66,7 @@ if __name__ == "__main__":
     div_itemsets = divide_dataset(itemsets, 16)
     
     Diags = False
-    offDiags = False
+    offDiags = True
     sweeps = np.linspace(1,36000,num=40, dtype=int)
     nitems=150
     
@@ -89,23 +89,26 @@ if __name__ == "__main__":
             pickle.dump(df,f)
     
     elif offDiags == True:
-        offdiags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
-        arr = one_hot_enc(itemsets,chosenOrder)
+        offdiags = np.zeros(((nitems*nitems)-nitems, len(sweeps),len(div_itemsets)))
 
-        for lag in range(len(sweeps)):
-            y = arr[sweeps[-1]:,:]
-            X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
-            coef = ridge_regress(X,y)
+        for i in range(len(div_itemsets)):
+            arr = one_hot_enc(div_itemsets[i],chosenOrder)
+            div_offd = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
 
-            #remove diagonals and flatten
-            offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
-            offd = offd.reshape(-1)
-            offdiags[:,lag] = offd
+            for lag in range(len(sweeps)):
+                y = arr[sweeps[-1]:,:]
+                X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
+                coef = ridge_regress(X,y)
 
-        df = pd.DataFrame(offdiags, columns=sweeps)
+                #remove diagonals and flatten
+                offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
+                offd = offd.reshape(-1)
+                div_offd[:,lag] = offd
+
+            offdiags[:,:,i] = div_offd
         
-        with open('./results/ridge_regression/offDiagonals_linspace.pickle','wb') as f:
-            pickle.dump(df,f)
+        with open('./results/ridge_regression/divided_offDiagonals_linspace.pickle','wb') as f:
+            pickle.dump(offdiags,f)
             
     else:
         allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
