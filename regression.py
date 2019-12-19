@@ -72,16 +72,17 @@ if __name__ == "__main__":
 
     div_itemsets = divide_dataset(itemsets, 16)
     
-    Sweep = True
+    Diags = False
     sweeps = np.linspace(1,36000,num=40, dtype=int)
     nitems=150
-    nlags=4
-    aggregby = 5
+    
+    lags = [1,4500,13500,22500,31500,40500]
+    nlags = len(lags)
 
-    if Sweep == True:
+    if Diags == True:
         diags = np.zeros((nitems, len(sweeps)))
         arr = one_hot_enc(itemsets, chosenOrder)
-        for lag in range(0,len(sweeps)):
+        for lag in range(len(sweeps)):
             y = arr[sweeps[-1]:,:]
             X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
             coef = ridge_regress(X,y)
@@ -99,20 +100,17 @@ if __name__ == "__main__":
         for i in range(0, len(div_itemsets)):
             arr = one_hot_enc(div_itemsets[i], chosenOrder)
             div_coefs = np.zeros((nlags, nitems, nitems))
-
             
-            
-            count = 1
-            for lag in range(0,nlags*aggregby,aggregby):
-                y = arr[nlags*aggregby:,:]
-                X = arr[lag:-nlags*aggregby+lag,:] #this puts the lags backwards
+            for lag in range(nlags):
+                y = arr[lags[-1]:,:]
+                X = arr[lags[-1] - lags[lag] : -lags[lag], :]
                 coef = ridge_regress(X,y)
-                div_coefs[-count,:,:] = coef #therefore do this (minus index)
+                div_coefs[lag,:,:] = coef #therefore do this (minus index)
                 count += 1
             
             allcoefs[:,:,:,i] = div_coefs
         
-        with open('./results/lasso_regression/LCH_allcoefs_1seclag.pickle', 'wb') as f:
+        with open('./results/ridge_regression/LCH_allcoefs_extendedlags.pickle', 'wb') as f:
             pickle.dump(allcoefs,f)
 
     
