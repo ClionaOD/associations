@@ -73,6 +73,7 @@ if __name__ == "__main__":
     div_itemsets = divide_dataset(itemsets, 16)
     
     Diags = False
+    offDiags = True
     sweeps = np.linspace(1,36000,num=40, dtype=int)
     nitems=150
     
@@ -88,11 +89,23 @@ if __name__ == "__main__":
             coef = ridge_regress(X,y)
             d = coef.diagonal()
             diags[:,lag] = d
+        
         df = pd.DataFrame(diags,columns=sweeps,index=chosenOrder)
-
 
         with open('./results/ridge_regression/diagonals_linspace.pickle', 'wb') as f:
             pickle.dump(df,f)
+    
+    elif offDiags == True:
+        diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
+        arr = one_hot_enc(itemsets,chosenOrder)
+
+        for lag in range(len(sweeps)):
+            y = arr[sweeps[-1]:,:]
+            X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
+            coef = ridge_regress(X,y)
+
+            
+
 
     else:
         allcoefs = np.zeros((nlags,nitems,nitems,len(div_itemsets)))
@@ -105,7 +118,7 @@ if __name__ == "__main__":
                 y = arr[lags[-1]:,:]
                 X = arr[lags[-1] - lags[lag] : -lags[lag], :]
                 coef = ridge_regress(X,y)
-                div_coefs[lag,:,:] = coef #therefore do this (minus index)
+                div_coefs[lag,:,:] = coef
                 count += 1
             
             allcoefs[:,:,:,i] = div_coefs
