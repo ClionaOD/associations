@@ -50,12 +50,6 @@ def ridge_regress(X,y):
     coefs = clf.coef_
     return coefs
 
-def lasso_regress(X,y):
-    clf = MultiTaskLassoCV(cv=5, random_state=0, normalize=True)
-    clf.fit(X,y)
-    coefs = clf.coef_
-    return coefs
-
 if __name__ == "__main__":
 
     with open('itemsets.pickle', 'rb') as f:
@@ -72,7 +66,7 @@ if __name__ == "__main__":
     div_itemsets = divide_dataset(itemsets, 16)
     
     Diags = False
-    offDiags = True
+    offDiags = False
     sweeps = np.linspace(1,36000,num=40, dtype=int)
     nitems=150
     
@@ -125,7 +119,6 @@ if __name__ == "__main__":
                 X = arr[lags[-1] - lags[lag] : -lags[lag], :]
                 coef = ridge_regress(X,y)
                 div_coefs[lag,:,:] = coef
-                count += 1
             
             allcoefs[:,:,:,i] = div_coefs
         

@@ -30,7 +30,7 @@ for lag in range(nlags):
     sns.heatmap(coef_tstats.pvalue[lag],ax=ax, cmap='YlGnBu', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=0, vmax=0.1)
     ax.axes.set_title('Mean Pvalues Lag {}'.format(lags[lag]), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/extendedLags/{}_Lag{}_meanPvals.pdf'.format(tag, lags[lag]))
+    plt.savefig('./results/ridge_regression/figs/extendedLags/{}_Lag{}_meanPvals.pdf'.format(tag, lags[lag]))
 
 mn_allcoefs=np.mean(allcoefs,axis=3)
 for lag in range(nlags):
@@ -38,7 +38,7 @@ for lag in range(nlags):
     sns.heatmap(mn_allcoefs[lag],ax=ax, cmap='seismic', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=-0.1, vmax=0.1)
     ax.axes.set_title('Mean Betas Lag {}'.format(lags[lag]), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/extendedLags/{}_Lag{}_meanCoefs.pdf'.format(tag,lags[lag]))
+    plt.savefig('./results/ridge_regression/figs/extendedLags/{}_Lag{}_meanCoefs.pdf'.format(tag,lags[lag]))
 
 for lag in range(nlags):        
     pvals = coef_tstats.pvalue[lag]
@@ -52,4 +52,4 @@ for lag in range(nlags):
     sns.heatmap(sigPval,ax=ax, cmap='binary', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=0, vmax=1)
     ax.axes.set_title('Pairs with p < 0.01, Lag {}'.format(lags[lag]), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/{}_Lag{}_meanSigs.pdf'.format(tag,lags[lag]))
+    plt.savefig('./results/ridge_regression/figs/extendedLags{}_Lag{}_meanSigs.pdf'.format(tag,lags[lag]))
