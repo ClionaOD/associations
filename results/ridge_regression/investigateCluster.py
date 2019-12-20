@@ -52,7 +52,7 @@ if __name__ == "__main__":
         df = df.reindex(newOrder,columns=newOrder)
 
         fig,ax = plt.subplots(figsize=[20,15])
-        sns.heatmap(df,ax=ax, cmap='seismic', xticklabels=newOrder, yticklabels=newOrder, center=0)
+        sns.heatmap(df,ax=ax, cmap='seismic', xticklabels=newOrder, yticklabels=newOrder, center=0, vmin=-0.03,vmax=0.03)
         ax.axes.set_title('Mean Betas Lag {} (thresholded by p < 0.01)'.format(lags[lag]), fontsize=35)
         ax.tick_params(labelsize=7)
         plt.savefig('./results/ridge_regression/figs/extendedLags/clustered-thresholded/Lag{}_meanCoefs(selfclustering_thresh).pdf'.format(lags[lag]))
