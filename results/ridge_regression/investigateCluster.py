@@ -41,7 +41,9 @@ if __name__ == "__main__":
 
         coefs = mn_allcoefs[lag]
         threshCoefs = sigPval * coefs
+        print('pause')
 
+        """
         df = pd.DataFrame(threshCoefs, index=lchOrder, columns=lchOrder)
         df = df.loc[(df!=0).any(axis=1)]
         
@@ -56,5 +58,6 @@ if __name__ == "__main__":
         ax.axes.set_title('Mean Betas Lag {} (thresholded by p < 0.01)'.format(lags[lag]), fontsize=35)
         ax.tick_params(labelsize=7)
         plt.savefig('./results/ridge_regression/figs/extendedLags/clustered-thresholded/Lag{}_meanCoefs(selfclustering_thresh).pdf'.format(lags[lag]))
+        """
 
 
