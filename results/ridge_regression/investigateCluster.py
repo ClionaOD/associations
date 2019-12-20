@@ -43,10 +43,11 @@ if __name__ == "__main__":
         threshCoefs = sigPval * coefs
 
         df = pd.DataFrame(threshCoefs, index=lchOrder, columns=lchOrder)
-        df = df.dropna()
+        df = df.loc[(df!=0).any(axis=1)]
+        
         newItems = list(df.index)
         df = df[newItems]
-
+        
         newOrder = hierarchical_clustering(df,newItems)
         df = df.reindex(newOrder,columns=newOrder)
 
