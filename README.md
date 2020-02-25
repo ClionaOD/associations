@@ -11,7 +11,7 @@ This analysis probed associations at a higher level than is typically examined i
 
 ### Data collection
 
-./data-collection/tag_movie.py - this script sends movies which are located in an AWS S3 bucket to be automatically tagged using Amazon Rekognition. The program will return a pickle file to the specified s3 bucket with all labels and data for the requested video.
+[tag_movie.py](https://github.com/ClionaOD/associations/blob/master/data-collection/tag_movies.py) - this script sends movies which are located in an AWS S3 bucket to be automatically tagged using Amazon Rekognition. The program will return a pickle file to the specified s3 bucket with all labels and data for the requested video.
 
 ./data-collection/create_itemsets.py - retrieve the raw output files from Rekognition (located in ./data) and process them into an array with each row containing item strings which occurred in the same 200 ms interval. 
 
