@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from mlxtend.preprocessing import TransactionEncoder
 from sklearn.linear_model import Ridge
 
@@ -55,23 +56,41 @@ def most_freq(lst, X=150):
     
     return freq_items 
 
-def diagonal_timecourse(data, sweeps):
+def get_timecourse_coefs(data, sweeps, mode=['diagonal','off-diagonal']):
     arr = data.values
     
-    diags = np.zeros((nitems, len(sweeps))
-    for lag in range(len(sweeps)):
-        y = arr[sweeps[-1]:,:]
-        X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
-        coef = ridge_regress(X,y)
-        d = coef.diagonal()
-        diags[:,lag] = d
+    if mode == 'diagonal':
+        diags = np.zeros((nitems, len(sweeps))
+        for lag in range(len(sweeps)):
+            y = arr[sweeps[-1]:,:]
+            X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
+            coef = ridge_regress(X,y)
+            d = coef.diagonal()
+            diags[:,lag] = d
+
+        return diags
     
-    return diags
+    elif mode == 'off-diagonal':
+        off-diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
+        
+        for lag in range(len(sweeps)):
+            y = arr[sweeps[-1]:,:]
+            X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
+            coef = ridge_regress(X,y)
+
+            #remove diagonals and flatten
+            offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
+            offd = offd.reshape(-1)
+            off-diags[:,lag] = offd
+        
+        return off-diags
+
 
 if __name__ == "__main__":
        
     dataPath = './itemsets.pickle'
     orderPath = './freq_order.pickle' #Put to None if the frequent items have not yet been computed
+    savePath = './results/coefficients'
 
     nitems = 150
     
@@ -91,21 +110,60 @@ if __name__ == "__main__":
 
     #Calculate the range of lags to sweep over
     sweeps = np.linspace(1,36000,num=40, dtype=int)
-    
-    #Get coefs of the diagonals over the sweep
-    diagonal_betas = np.zeros((nitems,len(sweeps),len(divDataset)))
-    for i in range(len(divDataset)):
-        data = encode_dataset(divDataset[i], order)
-        diagonal_betas[:,:,i] = diagonal_timecourse(data,sweeps)
-
-    #Average and save out diagonal values
-    meanDiags = np.mean(diagonal_betas, axis=2)
-
     sweepMins = []
     for sweep in sweeps:
         sweepMins.append(round((sweep*200) / (60*1000)))
     
-    df = pd.DataFrame(meanDiags,columns=sweepMins,index=order)
+    #Get coefs of the diagonals over the sweep
+    diagonal_betas = np.zeros((nitems,len(sweeps),len(divDataset)))
+    off_betas = np.zeros(((nitems*nitems)-nitems, len(sweeps),len(divDataset)))
+    for i in range(len(divDataset)):
+        data = encode_dataset(divDataset[i], order)
+        diagonal_betas[:,:,i] = get_timecourse_coefs(data,sweeps,mode='diagonal')
+        off_betas[:,:,i] = get_timecourse_coefs(data,sweeps,mode='off-diagonal')
+
+    #Average and save out diagonal values
+    meanDiags = np.mean(diagonal_betas, axis=2)
+    
+    with open('{}/mean-diagonal-coefs.pickle'.format(savePath),'rb') as f:
+        pickle.dump(meanDiags,f)
+
+    #Average and save out off-diagonal values
+    meanOffs = np.mean(off_betas, axis=2)
+
+    with open('{}/mean-off-diagonal-coefs.pickle'.format(savePath),'rb') as f:
+        pickle.dump(meanOffs,f)
+
+    #plot the timecourses
+    threshold = 0.001
+    
+    plotDiags = np.delete(meanDiags, np.where(meanVals[:,0] < threshold)[0], 0)
+    fig, ax = plt.subplots(figsize=[25,13])
+    ax.plot(plotDiags.T)
+    ax.set_title('Timecourse of the diagonal values (mean)')
+    ax.set_xlabel('minutes')
+    ax.set_xticks(range(40))
+    ax.set_xticklabels(sweepMins)
+    ax.set_ylabel('coefficients of the diagonal (thresholded at Β > {})'.format(threshold))
+    plt.savefig('./results/figs/timecourses/diagonal-timecourse_(threshold {}).pdf'.format(threshold))
+    plt.close()
+
+    plotOffs = np.delete(meanOffs, np.where(meanVals[:,0] < threshold)[0], 0)
+    fig, ax = plt.subplots(figsize=[25,13])
+    ax.plot(plotOffs.T)
+    ax.set_title('Timecourse of the off-diagonal values (mean)')
+    ax.set_xlabel('minutes')
+    ax.set_xticks(range(40))
+    ax.set_xticklabels(sweepMins)
+    ax.set_ylabel('coefficients of the off-diagonal (thresholded at Β > {})'.format(threshold))
+    plt.savefig('./results/figs/timecourses/off-diagonal-timecourse_(threshold {}).pdf'.format(threshold))
+    plt.close()
+
+    
+
+
+
+
 
 
 
