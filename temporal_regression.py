@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mlxtend.preprocessing import TransactionEncoder
 from sklearn.linear_model import Ridge
+from scipy import stats
 
 def ridge_regress(X,y):
     clf = Ridge(alpha=1, normalize=True)
@@ -56,35 +57,34 @@ def most_freq(lst, X=150):
     
     return freq_items 
 
-def get_timecourse_coefs(data, sweeps, mode=['diagonal','off-diagonal']):
+def get_coefs(data, sweeps):
     arr = data.values
+    coefs = np.zeros((nitems,nitems,len(sweeps)))
+    for lag in range(len(sweeps)):
+        y = arr[sweeps[-1]:,:]
+        X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
+        coef = ridge_regress(X,y)
+        coefs[:,:,lag] = coef
+
+    return coefs
+
+def get_timecourse_coefs(coef_arr, sweeps, nitems=150):
+    diags = np.zeros((nitems, len(sweeps))
+    off_diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
     
-    if mode == 'diagonal':
-        diags = np.zeros((nitems, len(sweeps)))
-        for lag in range(len(sweeps)):
-            y = arr[sweeps[-1]:,:]
-            X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
-            coef = ridge_regress(X,y)
-            d = coef.diagonal()
-            diags[:,lag] = d
+    for lag in len(range(sweeps)):
+        lagCoefs = coef_arr[:,:,lag]
+        d = lagCoefs.diagonal()
+        diags[:,lag] = d
 
-        return diags
+        offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
+        offd = offd.reshape(-1)
+        off_diags[:,lag] = offd
     
-    elif mode == 'off-diagonal':
-        off_diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
-        
-        for lag in range(len(sweeps)):
-            y = arr[sweeps[-1]:,:]
-            X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
-            coef = ridge_regress(X,y)
+    return diags, off_diags
 
-            #remove diagonals and flatten
-            offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
-            offd = offd.reshape(-1)
-            off_diags[:,lag] = offd
-        
-        return off_diags
-
+def get_significance():
+    pass
 
 if __name__ == "__main__":
        
@@ -114,13 +114,17 @@ if __name__ == "__main__":
     for sweep in sweeps:
         sweepMins.append(round((sweep*200) / (60*1000)))
     
-    #Get coefs of the diagonals over the sweep
+    #Get coefs over the sweep, separate diagonal and non-diagonal
+    all_betas = np.zeros()(nitems,nitems,len(sweeps),len(divDataset))
     diagonal_betas = np.zeros((nitems,len(sweeps),len(divDataset)))
     off_betas = np.zeros(((nitems*nitems)-nitems, len(sweeps),len(divDataset)))
     for i in range(len(divDataset)):
         data = encode_dataset(divDataset[i], order)
-        diagonal_betas[:,:,i] = get_timecourse_coefs(data,sweeps,mode='diagonal')
-        off_betas[:,:,i] = get_timecourse_coefs(data,sweeps,mode='off-diagonal')
+        coefs = get_coefs(data,sweeps)
+
+        diags, off_diags = get_timecourse_coefs(coefs,sweeps,nitems=nitems)
+        diagonal_betas[:,:,i] = diags
+        off_betas[:,:,i] = off_diags
 
     #Average and save out diagonal values
     meanDiags = np.mean(diagonal_betas, axis=2)

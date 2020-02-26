@@ -23,11 +23,9 @@ This analysis probed associations at a higher level than is typically examined i
 
 ## Analysis
 
-[regression.py](https://github.com/ClionaOD/associations/blob/master/regression.py) - perform Ridge Regression for the top most frequent items in the dataset of 40,000,000 labels. Retrieve the coefficient matrices.
+[temporal_regression.py](https://github.com/ClionaOD/associations/blob/master/tempora_regression.py) - perform Ridge Regression for the top most frequent items in the dataset of 40,000,000 labels. Retrieve the coefficient matrices for the diagonal and off diagonal values and plot their timecourses over a sweep from 200 ms to 2 hr.
 
 [plotting.py](https://github.com/ClionaOD/associations/blob/master/plotting.py) - plot the coefficient and p value matrices.
-
-[plot_timecourse.py](https://github.com/ClionaOD/associations/blob/master/plot_timecourse.py) - plot the timecourses of the frequent items.
 
 ## Results
 Figures for various analyses are stored in ./results/ridge_regression/figs
