@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 from sklearn.linear_model import Ridge
-from sklearn.linear_model import MultiTaskLassoCV
 
 def divide_dataset(lst, div):
+    """Split the dataset into smaller samples"""
     length = int(len(lst)/div)
 
     split_lst = []
@@ -22,6 +22,7 @@ def divide_dataset(lst, div):
     return split_lst
 
 def most_freq(lst, X=150):
+    """Get the top X most frequent items in the dataset"""
     te = TransactionEncoder()
     one_hot = te.fit(lst).transform(lst, sparse=False)
     one_hot = one_hot.astype(int)
@@ -34,6 +35,13 @@ def most_freq(lst, X=150):
     return freq_items 
 
 def one_hot_enc(lst, items):
+    """
+    Encode the categorical data into a binary array.
+    lst: The list of labels (structured as a list of lists).
+    items: A list of labels to keep in the encoded array.
+    
+    Returns array with each row corresponding to a timepoint and each column an item.
+    """
     te = TransactionEncoder()
     one_hot = te.fit(lst).transform(lst, sparse=False)
     one_hot = one_hot.astype(int)
@@ -41,7 +49,6 @@ def one_hot_enc(lst, items):
     freq_onehot = one_hot_df[items]
 
     onehot_arr = freq_onehot.values
-    items = list(freq_onehot.columns)
     return onehot_arr
 
 def ridge_regress(X,y):
@@ -52,23 +59,23 @@ def ridge_regress(X,y):
 
 if __name__ == "__main__":
 
+    #Load the data from data-collection
     with open('itemsets.pickle', 'rb') as f:
         itemsets = pickle.load(f)
 
-    with open('lch_order.pickle', 'rb') as f:
-       lchOrder = pickle.load(f)
-
+    #Load frequent items (saved to memory to avoid repetition of large computation)
     with open('freq_order.pickle', 'rb') as f:
         frequent_items = pickle.load(f)
 
-    chosenOrder = lchOrder
+    nitems = 150
+    chosenOrder = frequent_items
 
+    #Split the dataset into samples to allow for mean calculation
     div_itemsets = divide_dataset(itemsets, 16)
     
     Diags = False
     offDiags = True
     sweeps = np.linspace(1,36000,num=40, dtype=int)
-    nitems=150
     
     lags = [1,4500,13500,22500,31500,40500]
     nlags = len(lags)
@@ -85,7 +92,7 @@ if __name__ == "__main__":
         
         df = pd.DataFrame(diags,columns=sweeps,index=chosenOrder)
 
-        with open('./results/ridge_regression/diagonals_linspace.pickle', 'wb') as f:
+        with open('./results/diagonals_linspace.pickle', 'wb') as f:
             pickle.dump(df,f)
     
     elif offDiags == True:
@@ -107,7 +114,7 @@ if __name__ == "__main__":
 
             offdiags[:,:,i] = div_offd
         
-        with open('./results/ridge_regression/divided_offDiagonals_linspace.pickle','wb') as f:
+        with open('./results/divided_offDiagonals_linspace.pickle','wb') as f:
             pickle.dump(offdiags,f)
             
     else:
@@ -125,7 +132,7 @@ if __name__ == "__main__":
             
             allcoefs[:,:,:,i] = div_coefs
         
-        with open('./results/ridge_regression/LCH_allcoefs_extendedlags.pickle', 'wb') as f:
+        with open('./results/LCH_allcoefs_extendedlags.pickle', 'wb') as f:
             pickle.dump(allcoefs,f)
 
     
