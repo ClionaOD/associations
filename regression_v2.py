@@ -60,7 +60,7 @@ def get_timecourse_coefs(data, sweeps, mode=['diagonal','off-diagonal']):
     arr = data.values
     
     if mode == 'diagonal':
-        diags = np.zeros((nitems, len(sweeps))
+        diags = np.zeros((nitems, len(sweeps)))
         for lag in range(len(sweeps)):
             y = arr[sweeps[-1]:,:]
             X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
@@ -71,7 +71,7 @@ def get_timecourse_coefs(data, sweeps, mode=['diagonal','off-diagonal']):
         return diags
     
     elif mode == 'off-diagonal':
-        off-diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
+        off_diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
         
         for lag in range(len(sweeps)):
             y = arr[sweeps[-1]:,:]
@@ -81,9 +81,9 @@ def get_timecourse_coefs(data, sweeps, mode=['diagonal','off-diagonal']):
             #remove diagonals and flatten
             offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
             offd = offd.reshape(-1)
-            off-diags[:,lag] = offd
+            off_diags[:,lag] = offd
         
-        return off-diags
+        return off_diags
 
 
 if __name__ == "__main__":
@@ -125,19 +125,19 @@ if __name__ == "__main__":
     #Average and save out diagonal values
     meanDiags = np.mean(diagonal_betas, axis=2)
     
-    with open('{}/mean-diagonal-coefs.pickle'.format(savePath),'rb') as f:
+    with open('{}/mean-diagonal-coefs.pickle'.format(savePath),'wb') as f:
         pickle.dump(meanDiags,f)
 
     #Average and save out off-diagonal values
     meanOffs = np.mean(off_betas, axis=2)
 
-    with open('{}/mean-off-diagonal-coefs.pickle'.format(savePath),'rb') as f:
+    with open('{}/mean-off-diagonal-coefs.pickle'.format(savePath),'wb') as f:
         pickle.dump(meanOffs,f)
 
     #plot the timecourses
     threshold = 0.001
-    
-    plotDiags = np.delete(meanDiags, np.where(meanVals[:,0] < threshold)[0], 0)
+
+    plotDiags = np.delete(meanDiags, np.where(meanDiags[:,0] < threshold)[0], 0)
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotDiags.T)
     ax.set_title('Timecourse of the diagonal values (mean)')
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     plt.savefig('./results/figs/timecourses/diagonal-timecourse_(threshold {}).pdf'.format(threshold))
     plt.close()
 
-    plotOffs = np.delete(meanOffs, np.where(meanVals[:,0] < threshold)[0], 0)
+    plotOffs = np.delete(meanOffs, np.where(meanOffs[:,0] < threshold)[0], 0)
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotOffs.T)
     ax.set_title('Timecourse of the off-diagonal values (mean)')
