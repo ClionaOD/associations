@@ -69,7 +69,7 @@ def get_coefs(data, sweeps):
     return coefs
 
 def get_timecourse_coefs(coef_arr, sweeps, nitems=150):
-    diags = np.zeros((nitems, len(sweeps))
+    diags = np.zeros((nitems, len(sweeps)))
     off_diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
     
     for lag in len(range(sweeps)):
@@ -77,14 +77,11 @@ def get_timecourse_coefs(coef_arr, sweeps, nitems=150):
         d = lagCoefs.diagonal()
         diags[:,lag] = d
 
-        offd = coef[~np.eye(coef.shape[0],dtype=bool)].reshape(coef.shape[0],-1)
+        offd = coef_arr[~np.eye(coef_arr.shape[0],dtype=bool)].reshape(coef_arr.shape[0],-1)
         offd = offd.reshape(-1)
         off_diags[:,lag] = offd
     
     return diags, off_diags
-
-def get_significance():
-    pass
 
 if __name__ == "__main__":
        
@@ -115,52 +112,54 @@ if __name__ == "__main__":
         sweepMins.append(round((sweep*200) / (60*1000)))
     
     #Get coefs over the sweep, separate diagonal and non-diagonal
-    all_betas = np.zeros()(nitems,nitems,len(sweeps),len(divDataset))
-    diagonal_betas = np.zeros((nitems,len(sweeps),len(divDataset)))
-    off_betas = np.zeros(((nitems*nitems)-nitems, len(sweeps),len(divDataset)))
+    all_betas = np.zeros((nitems,nitems,len(sweeps),len(divDataset)))
+    
     for i in range(len(divDataset)):
         data = encode_dataset(divDataset[i], order)
         coefs = get_coefs(data,sweeps)
+        all_betas[:,:,:,i] = coefs
 
-        diags, off_diags = get_timecourse_coefs(coefs,sweeps,nitems=nitems)
-        diagonal_betas[:,:,i] = diags
-        off_betas[:,:,i] = off_diags
+    #Average the coef arrays & get stats
+    meanCoefs = np.mean(all_betas, axis=2)
 
-    #Average and save out diagonal values
-    meanDiags = np.mean(diagonal_betas, axis=2)
+    tstatsCoefs = stats.ttest_1samp(all_betas, 0, axis=3)
+    pvalsCoefs = tstatsCoefs.pvalue
+
+    #Separate diagonal
+    meanDiags, meanOffs = get_timecourse_coefs(meanCoefs,sweeps,nitems=nitems)
     
     with open('{}/mean-diagonal-coefs.pickle'.format(savePath),'wb') as f:
         pickle.dump(meanDiags,f)
-
-    #Average and save out off-diagonal values
-    meanOffs = np.mean(off_betas, axis=2)
 
     with open('{}/mean-off-diagonal-coefs.pickle'.format(savePath),'wb') as f:
         pickle.dump(meanOffs,f)
 
     #plot the timecourses
-    threshold = 0.001
+    thresh = 0.01
+    threshold = pvalsCoefs < thresh
 
-    plotDiags = np.delete(meanDiags, np.where(meanDiags[:,0] < threshold)[0], 0)
+    plotDiags = meanDiags.copy()
+    plotDiags[~threshold] = 0
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotDiags.T)
     ax.set_title('Timecourse of the diagonal values (mean)')
     ax.set_xlabel('minutes')
     ax.set_xticks(range(40))
     ax.set_xticklabels(sweepMins)
-    ax.set_ylabel('coefficients of the diagonal (thresholded at Β > {})'.format(threshold))
-    plt.savefig('./results/figs/timecourses/diagonal-timecourse_(threshold {}).pdf'.format(threshold))
+    ax.set_ylabel('coefficients of the diagonal (thresholded at p < {})'.format(thresh))
+    plt.savefig('./results/figs/timecourses/diagonal-timecourse_(threshold p < {}).pdf'.format(thresh))
     plt.close()
 
-    plotOffs = np.delete(meanOffs, np.where(meanOffs[:,0] < threshold)[0], 0)
+    plotOffs = meanOffs.copy()
+    plotOffs[~threshold] = 0
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotOffs.T)
     ax.set_title('Timecourse of the off-diagonal values (mean)')
     ax.set_xlabel('minutes')
     ax.set_xticks(range(40))
     ax.set_xticklabels(sweepMins)
-    ax.set_ylabel('coefficients of the off-diagonal (thresholded at Β > {})'.format(threshold))
-    plt.savefig('./results/figs/timecourses/off-diagonal-timecourse_(threshold {}).pdf'.format(threshold))
+    ax.set_ylabel('coefficients of the off-diagonal (thresholded at p < {})'.format(thresh))
+    plt.savefig('./results/figs/timecourses/off-diagonal-timecourse_(threshold p < {}).pdf'.format(thresh))
     plt.close()
 
     
