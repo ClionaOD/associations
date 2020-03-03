@@ -112,7 +112,7 @@ if __name__ == "__main__":
     dataPath = './itemsets.pickle'
     orderPath = './freq_order.pickle' #Put to None if the frequent items have not yet been computed
     savePath = './results/coefficients'
-    loadPath = None #'{}'.format(savePath) #Set to None if need to calculate all coefficients
+    loadPath = savePath #Set to None if need to calculate all coefficients
 
     nitems = 150
     divBy = 16
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     sweeps = np.linspace(1,36000,num=40, dtype=int)
     sweepMins = []
     for sweep in sweeps:
-        sweepMins.append(round((sweep*200) / (60*1000)))
+        sweepMins.append(int(round((sweep*200) / (60*1000))))
     
     #Get coefs over the sweep, separate diagonal and non-diagonal
     if loadPath:
@@ -201,4 +201,17 @@ if __name__ == "__main__":
     ax.set_xticklabels(sweepMins)
     ax.set_ylabel('coefficients of the off-diagonal (thresholded at p < {})'.format(thresh))
     plt.savefig('./results/figs/timecourses/off-diagonal-timecourse_(threshold p < {}).pdf'.format(thresh))
+    plt.close()
+
+    #Plot the R2 values
+    R2_arr = np.array(R2_scores)
+    means = np.mean(R2_arr, axis=0)
+    fig, ax = plt.subplots(figsize=[25,13])
+    ax.plot(means.T)
+    ax.set_title('Mean R2 values from 0 - {} mins'.format(sweepMins[-1]))
+    ax.set_xlabel('minutes')
+    ax.set_xticks(range(40))
+    ax.set_xticklabels(sweepMins)
+    ax.set_ylabel('R2')
+    plt.savefig('./results/figs/timecourses/R2_values.pdf')
     plt.close()
