@@ -77,7 +77,7 @@ def get_timecourse_coefs(coef_arr, sweeps, nitems=150):
     diags = np.zeros((nitems, len(sweeps)))
     off_diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
     
-    for lag in len(range(sweeps)):
+    for lag in range(len(sweeps)):
         lagCoefs = coef_arr[:,:,lag]
         
         d = lagCoefs.diagonal()
@@ -89,13 +89,19 @@ def get_timecourse_coefs(coef_arr, sweeps, nitems=150):
     
     return diags, off_diags
 
+def get_timecourse_sigs(coefs, divBy):
+    diags = np.zeros((nitems, len(sweeps), divBy))
+    off_diags = np.zeros(((nitems*nitems)-nitems, len(sweeps), divBy))
+
 if __name__ == "__main__":
        
     dataPath = './itemsets.pickle'
     orderPath = './freq_order.pickle' #Put to None if the frequent items have not yet been computed
     savePath = './results/coefficients'
+    loadPath = '{}/all-betas.pickle'.format(savePath) #Set to None if need to calculate all coefficients
 
     nitems = 150
+    divBy = 16
     
     #Load the data
     with open(dataPath,'rb') as f:
@@ -109,7 +115,7 @@ if __name__ == "__main__":
         order = most_freq(dataset, nitems)
 
     #Divide the dataset to allow for mean calculation
-    divDataset = divide_dataset(dataset, 16)
+    divDataset = divide_dataset(dataset, divBy)
 
     #Calculate the range of lags to sweep over
     sweeps = np.linspace(1,36000,num=40, dtype=int)
@@ -118,12 +124,16 @@ if __name__ == "__main__":
         sweepMins.append(round((sweep*200) / (60*1000)))
     
     #Get coefs over the sweep, separate diagonal and non-diagonal
-    all_betas = np.zeros((nitems,nitems,len(sweeps),len(divDataset)))
-    
-    for i in range(len(divDataset)):
-        data = encode_dataset(divDataset[i], order)
-        coefs = get_coefs(data,sweeps)
-        all_betas[:,:,:,i] = coefs
+    if loadPath:
+        with open('{}/all-betas.pickle'.format(savePath), 'rb') as f:
+            all_betas = pickle.load(f)
+    else:
+        all_betas = np.zeros((nitems,nitems,len(sweeps),len(divDataset)))
+        
+        for i in range(len(divDataset)):
+            data = encode_dataset(divDataset[i], order)
+            coefs = get_coefs(data,sweeps)
+            all_betas[:,:,:,i] = coefs
 
     #Average the coef arrays & get stats
     meanCoefs = np.mean(all_betas, axis=3)
