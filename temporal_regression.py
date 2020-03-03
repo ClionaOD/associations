@@ -9,8 +9,9 @@ from scipy import stats
 def ridge_regress(X,y):
     clf = Ridge(alpha=1, normalize=True)
     clf.fit(X,y)
+    score = clf.score(X,y)
     coefs = clf.coef_
-    return coefs
+    return coefs, score
 
 def divide_dataset(lst, div):
     """Split the dataset into smaller samples"""
@@ -60,13 +61,15 @@ def most_freq(lst, X=150):
 def get_coefs(data, sweeps):
     arr = data.values
     coefs = np.zeros((nitems,nitems,len(sweeps)))
+    scores = []
     for lag in range(len(sweeps)):
         y = arr[sweeps[-1]:,:]
         X = arr[sweeps[-1] - sweeps[lag] : -sweeps[lag], :]
-        coef = ridge_regress(X,y)
+        coef, score = ridge_regress(X,y)
         coefs[:,:,lag] = coef
+        scores.append(score)
 
-    return coefs
+    return coefs, scores
 
 def get_timecourse_coefs(coef_arr, sweeps, nitems=150, divBy=16):
     """
@@ -109,7 +112,7 @@ if __name__ == "__main__":
     dataPath = './itemsets.pickle'
     orderPath = './freq_order.pickle' #Put to None if the frequent items have not yet been computed
     savePath = './results/coefficients'
-    loadPath = '{}/all-betas.pickle'.format(savePath) #Set to None if need to calculate all coefficients
+    loadPath = None #'{}'.format(savePath) #Set to None if need to calculate all coefficients
 
     nitems = 150
     divBy = 16
@@ -138,13 +141,23 @@ if __name__ == "__main__":
     if loadPath:
         with open('{}/all-betas.pickle'.format(savePath), 'rb') as f:
             all_betas = pickle.load(f)
+        with open('{}/R2_scores.pickle'.format(savePath), 'rb') as f:
+            R2_scores = pickle.load(f)
     else:
         all_betas = np.zeros((nitems,nitems,len(sweeps),len(divDataset)))
+        R2_scores = []
         
         for i in range(divBy):
             data = encode_dataset(divDataset[i], order)
-            coefs = get_coefs(data,sweeps)
+            coefs, scores = get_coefs(data,sweeps)
             all_betas[:,:,:,i] = coefs
+            R2_scores.append(scores)
+
+        with open('{}/all-betas.pickle'.format(savePath), 'wb') as f:
+            pickle.dump(all_betas,f)
+        
+        with open('{}/R2_scores.pickle'.format(savePath), 'wb') as f:
+            pickle.dump(R2_scores,f)
 
     #Average the coef arrays & get stats
     meanCoefs = np.mean(all_betas, axis=3)
