@@ -69,15 +69,21 @@ def get_coefs(data, sweeps):
     return coefs
 
 def get_timecourse_coefs(coef_arr, sweeps, nitems=150):
+    """
+    coef_arr: the 3D array (nitems, nitems, nsweeps) of the mean coefficients
+    sweeps: list of sweeps
+    nitems: number of frequent items i.e. len(order)
+    """
     diags = np.zeros((nitems, len(sweeps)))
     off_diags = np.zeros(((nitems*nitems)-nitems, len(sweeps)))
     
     for lag in len(range(sweeps)):
         lagCoefs = coef_arr[:,:,lag]
+        
         d = lagCoefs.diagonal()
         diags[:,lag] = d
 
-        offd = coef_arr[~np.eye(coef_arr.shape[0],dtype=bool)].reshape(coef_arr.shape[0],-1)
+        offd = lagCoefs[~np.eye(lagCoefs.shape[0],dtype=bool)].reshape(lagCoefs.shape[0],-1)
         offd = offd.reshape(-1)
         off_diags[:,lag] = offd
     
@@ -120,7 +126,7 @@ if __name__ == "__main__":
         all_betas[:,:,:,i] = coefs
 
     #Average the coef arrays & get stats
-    meanCoefs = np.mean(all_betas, axis=2)
+    meanCoefs = np.mean(all_betas, axis=3)
 
     tstatsCoefs = stats.ttest_1samp(all_betas, 0, axis=3)
     pvalsCoefs = tstatsCoefs.pvalue
