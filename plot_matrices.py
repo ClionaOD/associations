@@ -40,7 +40,8 @@ for idx, lag in enumerate(matrix_lags):
     sns.heatmap(mean_coefs[:,:,lag],ax=ax, cmap='YlGnBu', xticklabels=clusterOrder, yticklabels=clusterOrder)
     ax.axes.set_title('Mean coefficients {} min lag'.format(mins[idx]), fontsize=45)
     ax.tick_params(labelsize=7)
-    plt.savefig('{}/meanCoefs_{}mins.pdf'.format(savePath, mins[idx]))
+    plt.show()
+    #plt.savefig('{}/meanCoefs_{}mins.pdf'.format(savePath, mins[idx]))
 
 """
 
