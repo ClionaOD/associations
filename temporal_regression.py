@@ -61,9 +61,9 @@ def most_freq(lst, X=150):
     #Choose only those which are in wordnet
     all_items = counts.to_dict()
     wn_items = {item : freq for item, freq in all_items.items() if len(wn.synsets(item, pos='n')) != 0 and item in model.vocab}
-    wn_items = pd.DataFrame.from_dict(wn_items, orient='index')
+    wn_items = pd.DataFrame.from_dict(wn_items, orient='index', columns=['Count'])
     
-    top_X = pd.DataFrame(wn_items.nlargest(X,  keep='all'))
+    top_X = pd.DataFrame(wn_items.nlargest(X, columns=wn_items.columns, keep='all'))
 
     freq_items = top_X.index.tolist()
     
@@ -122,9 +122,9 @@ if __name__ == "__main__":
        
     #Set paramaters 
     dataPath = './itemsets.pickle'
-    orderPath = None #'./freq_order.pickle'   #Put to None if the frequent items have not yet been computed
+    orderPath = './freq_order.pickle'   #Put to None if the frequent items have not yet been computed
     savePath = './results/coefficients'
-    loadPath = savePath                 #Set to None if need to calculate all coefficients
+    loadPath = None #savePath                 #Set to None if need to calculate all coefficients
     modelPath = '/home/CUSACKLAB/clionaodoherty/GoogleNews-vectors-negative300.bin'
 
     nitems = 150
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     else:
         order = most_freq(dataset, nitems)
 
-        with open(orderPath, 'wb') as f:
+        with open('./freq_order.pickle', 'wb') as f:
             pickle.dump(order,f)
 
     #Divide the dataset to allow for mean calculation
