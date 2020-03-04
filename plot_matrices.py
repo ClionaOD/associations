@@ -36,9 +36,12 @@ mean_coefs = np.mean(all_betas, axis=3)
 clusterOrder = hierarchical_clustering(mean_coefs[0], order)
 
 for idx, lag in enumerate(matrix_lags):
+    plotMatrix = pd.DataFrame(mean_coefs[:,:,lag], index=order, columns=order)
+    plotMatrix = plotMatrix.reindex(index=clusterOrder, columns=clusterOrder)
+
     fig,ax = plt.subplots(figsize=[20,15])
-    sns.heatmap(mean_coefs[:,:,lag],ax=ax, cmap='YlGnBu', xticklabels=clusterOrder, yticklabels=clusterOrder)
-    ax.axes.set_title('Mean coefficients {} min lag'.format(mins[idx]), fontsize=45)
+    sns.heatmap(plotMatrix,ax=ax, cmap='YlGnBu', xticklabels=clusterOrder, yticklabels=clusterOrder)
+    ax.axes.set_title('Mean coefficients {} min lag'.format(mins[idx]), fontsize=30)
     ax.tick_params(labelsize=7)
     plt.show()
     #plt.savefig('{}/meanCoefs_{}mins.pdf'.format(savePath, mins[idx]))
