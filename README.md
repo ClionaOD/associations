@@ -23,18 +23,9 @@ This analysis probed associations at a higher level than is typically examined i
 
 ## Analysis
 
-[temporal_regression.py](https://github.com/ClionaOD/associations/blob/master/tempora_regression.py) - perform Ridge Regression for the top most frequent items in the dataset of 40,000,000 labels. Retrieve the coefficient matrices for the diagonal and off diagonal values and plot their timecourses over a sweep from 200 ms to 2 hr.
+[temporal_regression.py](https://github.com/ClionaOD/associations/blob/master/tempora_regression.py) - perform Ridge Regression for the top most frequent items in the dataset of 40,000,000 labels. Retrieve the coefficient matrices for the diagonal and off diagonal values and plot their timecourses over a sweep from 200 ms to 2 hr. Plot the mean R2 values over an increasing number of lags from 0 ms to 2 hr.
 
-[plotting.py](https://github.com/ClionaOD/associations/blob/master/plotting.py) - plot the coefficient and p value matrices.
+[plotting.py](https://github.com/ClionaOD/associations/blob/master/plotting.py) - For chosen lags, plot the pairwise coefficient matrices for each of the 150 frequent items. 
 
 ## Results
-Figures for various analyses are stored in ./results/ridge_regression/figs
-The analysis was done for increasing time intervals
-It was found that there was a strong correlative structure over an extended period of time, with the trend beginning to decrease at approx. 15 mins.
-
-Figures have been ordered either according to a semantic measure of similarity between object (Leacock-Chodrow LCH measure)
-OR
-By the order which emerges from hierarchical clustering (as derived in ./results/ridge_regression/investigateCluster.py)
-
-
-...
+Figures for various analyses are stored in [./results/figs](https://github.com/ClionaOD/associations/tree/master/results/figs)
