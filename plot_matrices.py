@@ -1,7 +1,9 @@
 import numpy as np
 import seaborn as sns
 import pickle
+import pandas as pd
 import matplotlib.pyplot as plt
+import scipy.spatial.distance as ssd
 import scipy.cluster.hierarchy as sch
 from scipy import stats
 
@@ -19,7 +21,7 @@ def hierarchical_clustering(matrix, label_list, outpath=None):
 
 loadPath = './results/coefficients'
 orderPath = './freq_order.pickle'
-savePath = './results/figs/matrices/updated'
+savePath = './results/figs/matrices/'
 
 with open('{}/all-betas.pickle'.format(loadPath), 'rb') as f:
     all_betas = pickle.load(f)
@@ -33,59 +35,25 @@ matrix_lags = [1,5,13,17,24,33,-1] #indices of the lags chosen from R2 graph fro
 mean_coefs = np.mean(all_betas, axis=3)
 
 #get hierarchical clustering order of the first regression 
-clusterOrder = hierarchical_clustering(mean_coefs[0], order)
+clusterOrder = hierarchical_clustering(mean_coefs[:,:,0], order, outpath='./results/figs/dendrogram.pdf')
+
+d = np.diagonal(mean_coefs[:,:,0])
+coefMax = np.amax(mean_coefs[:,:,0])
+coefMin = np.amin(mean_coefs[:,:,0])
 
 for idx, lag in enumerate(matrix_lags):
     plotMatrix = pd.DataFrame(mean_coefs[:,:,lag], index=order, columns=order)
     plotMatrix = plotMatrix.reindex(index=clusterOrder, columns=clusterOrder)
 
     fig,ax = plt.subplots(figsize=[20,15])
-    sns.heatmap(plotMatrix,ax=ax, cmap='YlGnBu', xticklabels=clusterOrder, yticklabels=clusterOrder)
+    cmap = sns.diverging_palette(240, 10, as_cmap=True)
+    sns.heatmap(plotMatrix,
+        ax=ax, 
+        cmap=cmap, 
+        vmin=coefMin, 
+        vmax=coefMax,
+        center=0.0)
     ax.axes.set_title('Mean coefficients {} min lag'.format(mins[idx]), fontsize=30)
     ax.tick_params(labelsize=7)
-    plt.show()
-    #plt.savefig('{}/meanCoefs_{}mins.pdf'.format(savePath, mins[idx]))
-
-"""
-
-lags = [1,4500,13500,22500,31500,40500]
-nlags = len(lags)
-
-chosenOrder = lchOrder
-
-if chosenOrder == lchOrder:
-    tag = 'LCH'
-elif chosenOrder == freqOrder:
-    tag = 'FREQ'
-
-coef_tstats=stats.ttest_1samp(allcoefs, 0, axis=3)
-
-for lag in range(nlags):
-    fig,ax = plt.subplots(figsize=[20,15])
-    sns.heatmap(coef_tstats.pvalue[lag],ax=ax, cmap='YlGnBu', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=0, vmax=0.1)
-    ax.axes.set_title('Mean Pvalues Lag {}'.format(lags[lag]), fontsize=45)
-    ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/figs/extendedLags/{}_Lag{}_meanPvals.pdf'.format(tag, lags[lag]))
-
-mn_allcoefs=np.mean(allcoefs,axis=3)
-for lag in range(nlags):
-    fig,ax = plt.subplots(figsize=[20,15])
-    sns.heatmap(mn_allcoefs[lag],ax=ax, cmap='seismic', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=-0.1, vmax=0.1)
-    ax.axes.set_title('Mean Betas Lag {}'.format(lags[lag]), fontsize=45)
-    ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/figs/extendedLags/{}_Lag{}_meanCoefs.pdf'.format(tag,lags[lag]))
-
-for lag in range(nlags):        
-    pvals = coef_tstats.pvalue[lag]
-    sigPval = np.zeros((150,150))
-    sigs = np.where(pvals < 0.01)
-    sigs = list(zip(sigs[0], sigs[1]))
-    for coord in sigs:
-        sigPval[coord[0]][coord[1]] = 1
-
-    fig,ax = plt.subplots(figsize=[20,15])
-    sns.heatmap(sigPval,ax=ax, cmap='binary', xticklabels=chosenOrder, yticklabels=chosenOrder, vmin=0, vmax=1)
-    ax.axes.set_title('Pairs with p < 0.01, Lag {}'.format(lags[lag]), fontsize=45)
-    ax.tick_params(labelsize=7)
-    plt.savefig('./results/ridge_regression/figs/extendedLags{}_Lag{}_meanSigs.pdf'.format(tag,lags[lag]))
-"""
+    #plt.show()
+    plt.savefig('{}/meanCoefs_{}mins.pdf'.format(savePath, mins[idx]))
