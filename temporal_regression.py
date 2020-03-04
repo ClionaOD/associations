@@ -124,15 +124,11 @@ if __name__ == "__main__":
     dataPath = './itemsets.pickle'
     orderPath = './freq_order.pickle'   #Put to None if the frequent items have not yet been computed
     savePath = './results/coefficients'
-    loadPath = None #savePath                 #Set to None if need to calculate all coefficients
+    loadPath = savePath                 #Set to None if need to calculate all coefficients
     modelPath = '/home/CUSACKLAB/clionaodoherty/GoogleNews-vectors-negative300.bin'
 
     nitems = 150
     divBy = 16
-
-    #load wordnet model
-    nltk.download('wordnet')
-    model = KeyedVectors.load_word2vec_format(modelPath, binary=True, limit=500000)
     
     #Load the data
     with open(dataPath,'rb') as f:
@@ -143,6 +139,10 @@ if __name__ == "__main__":
         with open(orderPath,'rb') as f:
             order = pickle.load(f)
     else:
+        #load wordnet model
+        nltk.download('wordnet')
+        model = KeyedVectors.load_word2vec_format(modelPath, binary=True, limit=500000)
+
         order = most_freq(dataset, nitems)
 
         with open('./freq_order.pickle', 'wb') as f:
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     
     threshold = diagPvals < thresh
     plotDiags = meanDiags.copy()
-    plotDiags[~threshold] = 0
+    plotDiags[~threshold] = float{'NaN') 
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotDiags.T)
     ax.set_title('Timecourse of the diagonal values (mean)')
@@ -212,7 +212,7 @@ if __name__ == "__main__":
 
     threshold = off_diagPvals < thresh
     plotOffs = meanOffs.copy()
-    plotOffs[~threshold] = 0
+    plotOffs[~threshold] = float('NaN')
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotOffs.T)
     ax.set_title('Timecourse of the off-diagonal values (mean)')
