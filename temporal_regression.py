@@ -199,7 +199,7 @@ if __name__ == "__main__":
     
     threshold = diagPvals < thresh
     plotDiags = meanDiags.copy()
-    plotDiags[~threshold] = float{'NaN') 
+    plotDiags[~threshold] = float('NaN') 
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotDiags.T)
     ax.set_title('Timecourse of the diagonal values (mean)')
