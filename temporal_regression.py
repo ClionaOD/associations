@@ -2,9 +2,14 @@ import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 from mlxtend.preprocessing import TransactionEncoder
 from sklearn.linear_model import Ridge
 from scipy import stats
+
+import nltk
+from nltk.corpus import wordnet as wn
+from gensim.models import KeyedVectors
 
 def ridge_regress(X,y):
     clf = Ridge(alpha=1, normalize=True)
@@ -52,7 +57,13 @@ def most_freq(lst, X=150):
     encoded_df = encode_dataset(lst)
 
     counts = encoded_df.sum(axis=0, skipna=True)
-    top_X = pd.DataFrame(counts.nlargest(X,  keep='all'))
+    
+    #Choose only those which are in wordnet
+    all_items = counts.to_dict()
+    wn_items = {item : freq for item, freq in all_items.items() if len(wn.synsets(item, pos='n')) != 0 and item in model.vocab}
+    wn_items = pd.DataFrame.from_dict(wn_items, orient='index')
+    
+    top_X = pd.DataFrame(wn_items.nlargest(X,  keep='all'))
 
     freq_items = top_X.index.tolist()
     
@@ -109,13 +120,19 @@ def get_timecourse_coefs(coef_arr, sweeps, nitems=150, divBy=16):
 
 if __name__ == "__main__":
        
+    #Set paramaters 
     dataPath = './itemsets.pickle'
-    orderPath = './freq_order.pickle' #Put to None if the frequent items have not yet been computed
+    orderPath = None #'./freq_order.pickle'   #Put to None if the frequent items have not yet been computed
     savePath = './results/coefficients'
-    loadPath = savePath #Set to None if need to calculate all coefficients
+    loadPath = savePath                 #Set to None if need to calculate all coefficients
+    modelPath = '/home/CUSACKLAB/clionaodoherty/GoogleNews-vectors-negative300.bin'
 
     nitems = 150
     divBy = 16
+
+    #load wordnet model
+    nltk.download('wordnet')
+    model = KeyedVectors.load_word2vec_format(modelPath, binary=True, limit=500000)
     
     #Load the data
     with open(dataPath,'rb') as f:
@@ -127,6 +144,9 @@ if __name__ == "__main__":
             order = pickle.load(f)
     else:
         order = most_freq(dataset, nitems)
+
+        with open(orderPath, 'wb') as f:
+            pickle.dump(order,f)
 
     #Divide the dataset to allow for mean calculation
     divDataset = divide_dataset(dataset, divBy)
