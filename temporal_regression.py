@@ -188,11 +188,11 @@ if __name__ == "__main__":
     #Separate diagonal
     meanDiags, diagPvals, meanOffs, off_diagPvals = get_timecourse_coefs(all_betas,sweeps,nitems=nitems, divBy=divBy)
     
-    with open('{}/mean-diagonal-coefs.pickle'.format(savePath),'wb') as f:
-        pickle.dump(meanDiags,f)
+    #with open('{}/mean-diagonal-coefs.pickle'.format(savePath),'wb') as f:
+        #pickle.dump(meanDiags,f)
 
-    with open('{}/mean-off-diagonal-coefs.pickle'.format(savePath),'wb') as f:
-        pickle.dump(meanOffs,f)
+    #with open('{}/mean-off-diagonal-coefs.pickle'.format(savePath),'wb') as f:
+        #pickle.dump(meanOffs,f)
 
     #plot the timecourses
     thresh = 0.001
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     threshold = diagPvals < thresh
     plotDiags = meanDiags.copy()
     plotDiags[~threshold] = float('NaN') 
-    plotDiags = np.delete(plotDiags, np.where(plotDiags[:,0] == float('NaN')), 0)
+    plotDiags = np.delete(plotDiags, np.where(np.isnan(plotDiags[:,0])), 0)
 
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotDiags.T)
@@ -209,13 +209,13 @@ if __name__ == "__main__":
     ax.set_xticks(range(40))
     ax.set_xticklabels(sweepMins)
     ax.set_ylabel('coefficients of the diagonal (thresholded at p < {})'.format(thresh))
-    plt.savefig('./results/figs/timecourses/diagonal-timecourse_(threshold p < {}).pdf'.format(thresh))
+    #plt.savefig('./results/figs/timecourses/diagonal-timecourse_(threshold p < {}).pdf'.format(thresh))
     plt.close()
 
     threshold = off_diagPvals < thresh
     plotOffs = meanOffs.copy()
     plotOffs[~threshold] = float('NaN')
-    plotOffs = np.delete(plotOffs, np.where(plotOffs[:,0] == float('NaN')), 0)
+    plotOffs = np.delete(plotOffs, np.where(np.isnan(plotOffs[:,0])), 0)
     
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotOffs.T)
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     ax.set_xticks(range(40))
     ax.set_xticklabels(sweepMins)
     ax.set_ylabel('coefficients of the off-diagonal (thresholded at p < {})'.format(thresh))
-    plt.savefig('./results/figs/timecourses/off-diagonal-timecourse_(threshold p < {}).pdf'.format(thresh))
+    #plt.savefig('./results/figs/timecourses/off-diagonal-timecourse_(threshold p < {}).pdf'.format(thresh))
     plt.close()
 
     #Plot the R2 values
