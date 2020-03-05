@@ -23,7 +23,7 @@ This analysis probed associations at a higher level than is typically examined i
 
 ## Analysis
 
-[temporal_regression.py](https://github.com/ClionaOD/associations/blob/master/tempora_regression.py) - perform Ridge Regression for the top most frequent items in the dataset of 40,000,000 labels. Retrieve the coefficient matrices for the diagonal and off diagonal values and plot their timecourses over a sweep from 200 ms to 2 hr. Plot the mean R2 values over an increasing number of lags from 0 ms to 2 hr.
+[temporal_regression.py](https://github.com/ClionaOD/associations/blob/master/temporal_regression.py) - perform Ridge Regression for the top most frequent items in the dataset of 40,000,000 labels. Retrieve the coefficient matrices for the diagonal and off diagonal values and plot their timecourses over a sweep from 200 ms to 2 hr. Plot the mean R2 values over an increasing number of lags from 0 ms to 2 hr.
 
 [plotting.py](https://github.com/ClionaOD/associations/blob/master/plotting.py) - For chosen lags, plot the pairwise coefficient matrices for each of the 150 frequent items. 
 
