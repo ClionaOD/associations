@@ -195,11 +195,13 @@ if __name__ == "__main__":
         pickle.dump(meanOffs,f)
 
     #plot the timecourses
-    thresh = 0.01
+    thresh = 0.001
     
     threshold = diagPvals < thresh
     plotDiags = meanDiags.copy()
     plotDiags[~threshold] = float('NaN') 
+    plotDiags = np.delete(plotDiags, np.where(plotDiags[:,0] == float('NaN')), 0)
+
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotDiags.T)
     ax.set_title('Timecourse of the diagonal values (mean)')
@@ -213,6 +215,8 @@ if __name__ == "__main__":
     threshold = off_diagPvals < thresh
     plotOffs = meanOffs.copy()
     plotOffs[~threshold] = float('NaN')
+    plotOffs = np.delete(plotOffs, np.where(plotOffs[:,0] == float('NaN')), 0)
+    
     fig, ax = plt.subplots(figsize=[25,13])
     ax.plot(plotOffs.T)
     ax.set_title('Timecourse of the off-diagonal values (mean)')
