@@ -9,7 +9,7 @@ from scipy import stats
 
 def hierarchical_clustering(matrix, label_list, outpath=None):
     fig,ax = plt.subplots(figsize=(10,10))
-    dend = sch.dendrogram(sch.linkage(matrix, method='ward'), ax=ax, labels=label_list, orientation='left')
+    dend = sch.dendrogram(sch.linkage(matrix, method='ward'), ax=ax, labels=label_list, orientation='left', color_threshold=5)
     ax.tick_params(axis='x', labelsize=4)
     if outpath:
         plt.savefig(outpath)
