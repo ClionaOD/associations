@@ -9,7 +9,11 @@ from scipy import stats
 
 def hierarchical_clustering(matrix, label_list, outpath=None):
     fig,ax = plt.subplots(figsize=(10,10))
-    dend = sch.dendrogram(sch.linkage(matrix, method='ward'), ax=ax, labels=label_list, orientation='left', color_threshold=5)
+    dend = sch.dendrogram(sch.linkage(matrix, method='ward'), 
+        ax=ax, 
+        labels=label_list, 
+        orientation='left'
+    )
     ax.tick_params(axis='x', labelsize=4)
     if outpath:
         plt.savefig(outpath)
@@ -37,7 +41,7 @@ if __name__ == "__main__":
     mean_coefs = np.mean(all_betas, axis=3)
 
     #get hierarchical clustering order of the first regression 
-    clusterOrder = hierarchical_clustering(mean_coefs[:,:,0], order, outpath='./results/figs/dendrogram.pdf')
+    clusterOrder = hierarchical_clustering(mean_coefs[:,:,matrix_lags[0]], order, outpath='./results/figs/dendrogram.pdf')
 
     coefMax = 0.015
     coefMin = -0.015
