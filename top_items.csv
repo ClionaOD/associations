@@ -1,35 +1,35 @@
-all_over_0.01.pickle,all_under_-0.015.pickle,diagonal_over_0.015.pickle,diagonal_over_0.01.pickle,all_under_-0.01.pickle,all_over_0.015.pickle
-"('Clothing', 'Apparel')","('Female', 'Military')",Man,Clothing,"('Clothing', 'Hand')","('Female', 'Hair')"
-"('Clothing', 'Female')","('Female', 'Halo')",Female,Apparel,"('Apparel', 'Hand')","('Female', 'Woman')"
-"('Clothing', 'Fashion')","('Female', 'Prison')",,Face,"('Face', 'Wood')","('Female', 'Girl')"
-"('Clothing', 'Robe')",,,Man,"('Furniture', 'Jaw')","('Female', 'Party')"
-"('Clothing', 'Gown')",,,Female,"('Man', 'Female')","('Hair', 'Party')"
-"('Clothing', 'Sleeve')",,,Overcoat,"('Female', 'Man')","('Woman', 'Female')"
-"('Apparel', 'Clothing')",,,People,"('Female', 'Pedestrian')",
-"('Apparel', 'Female')",,,Crowd,"('Female', 'Military')",
-"('Apparel', 'Fashion')",,,Hair,"('Female', 'Halo')",
-"('Apparel', 'Robe')",,,Head,"('Female', 'Prison')",
-"('Apparel', 'Gown')",,,Accessory,"('People', 'Ear')",
-"('Apparel', 'Sleeve')",,,Accessories,"('Hair', 'Military')",
-"('Coat', 'Suit')",,,Suit,"('Woman', 'Military')",
-"('Furniture', 'Wood')",,,Woman,"('Woman', 'Prison')",
-"('Furniture', 'Couch')",,,Finger,,
-"('Female', 'Hair')",,,Fashion,,
-"('Female', 'Woman')",,,Girl,,
-"('Female', 'Girl')",,,Hat,,
-"('Female', 'Robe')",,,,,
-"('Female', 'Gown')",,,,,
-"('Female', 'Blossom')",,,,,
-"('Female', 'Flower')",,,,,
-"('Female', 'Party')",,,,,
-"('Overcoat', 'Suit')",,,,,
-"('Overcoat', 'Court')",,,,,
-"('Hair', 'Female')",,,,,
-"('Hair', 'Party')",,,,,
-"('Accessory', 'Accessories')",,,,,
-"('Accessories', 'Accessory')",,,,,
-"('Suit', 'Tie')",,,,,
-"('Pub', 'Club')",,,,,
-"('Woman', 'Female')",,,,,
-"('Woman', 'Girl')",,,,,
-"('Girl', 'Female')",,,,,
+all_over_0.015,all_over_0.01,all_under_-0.01,all_under_-0.015,,diagonal_over_0.015,diagonal_over_0.01
+ ,"('Clothing', 'Apparel')","('Clothing', 'Hand')","('Female', 'Military')",,Man,Clothing
+"('Female', 'Woman')","('Clothing', 'Female')","('Apparel', 'Hand')","('Female', 'Halo')",,Female,Apparel
+"('Female', 'Girl')","('Clothing', 'Fashion')","('Face', 'Wood')","('Female', 'Prison')",,,Face
+"('Female', 'Party')","('Clothing', 'Robe')","('Furniture', 'Jaw')",,,,Man
+"('Hair', 'Party')","('Clothing', 'Gown')","('Man', 'Female')",,,,Female
+"('Woman', 'Female')","('Clothing', 'Sleeve')","('Female', 'Man')",,,,Overcoat
+,"('Apparel', 'Clothing')","('Female', 'Pedestrian')",,,,People
+,"('Apparel', 'Female')","('Female', 'Military')",,,,Crowd
+,"('Apparel', 'Fashion')","('Female', 'Halo')",,,,Hair
+,"('Apparel', 'Robe')","('Female', 'Prison')",,,,Head
+,"('Apparel', 'Gown')","('People', 'Ear')",,,,Accessory
+,"('Apparel', 'Sleeve')","('Hair', 'Military')",,,,Accessories
+,"('Coat', 'Suit')","('Woman', 'Military')",,,,Suit
+,"('Furniture', 'Wood')","('Woman', 'Prison')",,,,Woman
+,"('Furniture', 'Couch')",,,,,Finger
+,"('Female', 'Hair')",,,,,Fashion
+,"('Female', 'Woman')",,,,,Girl
+,"('Female', 'Girl')",,,,,Hat
+,"('Female', 'Robe')",,,,,
+,"('Female', 'Gown')",,,,,
+,"('Female', 'Blossom')",,,,,
+,"('Female', 'Flower')",,,,,
+,"('Female', 'Party')",,,,,
+,"('Overcoat', 'Suit')",,,,,
+,"('Overcoat', 'Court')",,,,,
+,"('Hair', 'Female')",,,,,
+,"('Hair', 'Party')",,,,,
+,"('Accessory', 'Accessories')",,,,,
+,"('Accessories', 'Accessory')",,,,,
+,"('Suit', 'Tie')",,,,,
+,"('Pub', 'Club')",,,,,
+,"('Woman', 'Female')",,,,,
+,"('Woman', 'Girl')",,,,,
+,"('Girl', 'Female')",,,,,
