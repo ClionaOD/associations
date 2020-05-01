@@ -29,6 +29,9 @@ if __name__ == "__main__":
     orderPath = './freq_order.pickle'
     savePath = './results/figs/matrices/'
 
+    #Whether to refine the matrix down to imagenet comparable categories
+    imgnet_categs = False
+
     with open('{}/all-betas.pickle'.format(loadPath), 'rb') as f:
         all_betas = pickle.load(f)
 
@@ -37,28 +40,38 @@ if __name__ == "__main__":
 
     mins = [3,15,40,50,75,100,120] #mins chosen to analyse
     matrix_lags = [1,5,13,17,24,33,-1] #indices of the lags chosen from R2 graph from temporal_regression.py
-
     mean_coefs = np.mean(all_betas, axis=3)
 
-    #get hierarchical clustering order of the first regression 
+    #get hierarchical clustering order of the first regression
     clusterOrder = hierarchical_clustering(mean_coefs[:,:,matrix_lags[0]], order, outpath='./results/figs/dendrogram.pdf')
-
+    
     coefMax = 0.015
     coefMin = -0.015
 
+    if imgnet_categs:       #overwrites above variables
+        matrix_lags = list(range(10))
+        clusterOrder = ['gown', 'hair', 'suit', 'coat', 'tie', 'shirt', 'sunglasses', 'shoe', 'screen', 'computer', 'table', 'food', 'restaurant', 'glass', 'alcohol', 'wine', 'lamp', 'couch', 'chair', 'closet', 'piano', 'pillow', 'desk', 'window', 'banister']
+        df_saves = {}
+
     for idx, lag in enumerate(matrix_lags):
         plotMatrix = pd.DataFrame(mean_coefs[:,:,lag], index=order, columns=order)
-        plotMatrix = plotMatrix.reindex(index=clusterOrder, columns=clusterOrder)
-
-        fig,ax = plt.subplots(figsize=[20,15])
-        cmap = sns.diverging_palette(240, 10, as_cmap=True)
-        sns.heatmap(plotMatrix,
-            ax=ax, 
-            cmap=cmap, 
-            vmin=coefMin, 
-            vmax=coefMax,
-            center=0.0)
-        ax.axes.set_title('Mean coefficients {} min lag'.format(mins[idx]), fontsize=30)
-        ax.tick_params(labelsize=7)
-        #plt.show()
-        plt.savefig('{}/meanCoefs_{}mins.pdf'.format(savePath, mins[idx]))
+        if not imgnet_categs:
+            plotMatrix = plotMatrix.reindex(index=clusterOrder, columns=clusterOrder)
+        
+            fig,ax = plt.subplots(figsize=[20,15])
+            cmap = sns.diverging_palette(240, 10, as_cmap=True)
+            sns.heatmap(plotMatrix,
+                ax=ax, 
+                cmap=cmap, 
+                vmin=coefMin, 
+                vmax=coefMax,
+                center=0.0)
+            ax.axes.set_title('Mean coefficients {} min lag'.format(mins[idx]), fontsize=30)
+            ax.tick_params(labelsize=7)
+            #plt.show()
+            plt.savefig('{}/meanCoefs_{}mins.pdf'.format(savePath, mins[idx]))
+        else:
+            plotMatrix.columns=[x.lower() for x in plotMatrix.columns]
+            plotMatrix.index=[x.lower() for x in plotMatrix.index]
+            assoc_df = plotMatrix.loc[clusterOrder][clusterOrder]
+            df_saves['lag_{}'.format(lag)] = assoc_df
