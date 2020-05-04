@@ -84,7 +84,7 @@ def get_coefs(data, sweeps):
 
 def get_timecourse_coefs(coef_arr, sweeps, nitems=150, divBy=16):
     """
-    coef_arr: the 3D array (nitems, nitems, nsweeps, divVy) of coefficients
+    coef_arr: the 3D array (nitems, nitems, nsweeps, divBy) of coefficients
     sweeps: list of sweeps
     nitems: number of frequent items i.e. len(order)
     """
@@ -107,7 +107,6 @@ def get_timecourse_coefs(coef_arr, sweeps, nitems=150, divBy=16):
         
         diags[:,:,div] = divDiags
         off_diags[:,:,div] = divOff_diags
-
     meanDiags = np.mean(diags, axis=2)
     diagTstats = stats.ttest_1samp(diags, 0, axis=2)
     diagPvals = diagTstats.pvalue
@@ -115,7 +114,7 @@ def get_timecourse_coefs(coef_arr, sweeps, nitems=150, divBy=16):
     meanOffs = np.mean(off_diags, axis=2)
     off_diagTstats = stats.ttest_1samp(off_diags, 0, axis=2)
     off_diagPvals = off_diagTstats.pvalue
-    
+
     return meanDiags, diagPvals, meanOffs, off_diagPvals
 
 if __name__ == "__main__":
