@@ -27,5 +27,7 @@ This analysis probed associations at a higher level than is typically examined i
 
 [plotting.py](https://github.com/ClionaOD/associations/blob/master/plotting.py) - For chosen lags, plot the pairwise coefficient matrices for each of the 150 frequent items. 
 
+[rms_diff.py](https://github.com/ClionaOD/associations/blob/master/rms_diff.py) - streams videos in the movie dataset from s3 database and calculates the RMS similarity score between two images over various lags. 
+
 ## Results
 Figures for various analyses are stored in [./results/figs](https://github.com/ClionaOD/associations/tree/master/results/figs)
